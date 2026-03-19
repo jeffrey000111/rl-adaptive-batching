@@ -1,0 +1,54 @@
+{
+    "experiment_name": "adaptive_batching_v1",
+    "environment": {
+        "max_steps": 1000,
+        "slo_ms": 100.0,
+        "base_rate": 50.0,
+        "latency_weight": 0.6,
+        "throughput_weight": 0.4,
+        "patterns": ["steady", "bursty", "diurnal"]
+    },
+    "training": {
+        "total_timesteps": 50000,
+        "eval_episodes": 10,
+        "seeds": [42, 123, 456]
+    },
+    "dqn": {
+        "learning_rate": 1e-3,
+        "buffer_size": 10000,
+        "learning_starts": 500,
+        "batch_size": 64,
+        "gamma": 0.99,
+        "exploration_fraction": 0.3,
+        "exploration_final_eps": 0.05,
+        "target_update_interval": 250,
+        "net_arch": [64, 64]
+    },
+    "ppo": {
+        "learning_rate": 3e-4,
+        "n_steps": 512,
+        "batch_size": 64,
+        "n_epochs": 10,
+        "gamma": 0.99,
+        "gae_lambda": 0.95,
+        "clip_range": 0.2,
+        "ent_coef": 0.01,
+        "net_arch": [64, 64]
+    },
+    "sac": {
+        "learning_rate": 3e-4,
+        "buffer_size": 10000,
+        "learning_starts": 500,
+        "batch_size": 64,
+        "gamma": 0.99,
+        "tau": 0.005,
+        "ent_coef": "auto",
+        "net_arch": [64, 64]
+    },
+    "hyperparameter_search": {
+        "learning_rates": [1e-4, 3e-4, 1e-3, 3e-3],
+        "gammas": [0.95, 0.99, 0.999],
+        "net_archs": [[32, 32], [64, 64], [128, 128]],
+        "ent_coefs_sac": ["auto", 0.1, 0.2, 0.5]
+    }
+}
