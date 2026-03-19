@@ -4,35 +4,63 @@ Reinforcement Learning course project — Spring 2026, SJSU
 
 ## Team
 - Yumeng Ren (018399628) — Environment design and simulation
-- Haoran Jiang (018321927) — DQN and PPO agent implementation
-- Brian Lam (014220934) — Baselines, evaluation, and reporting
+- Haoran Jiang (018321927) — PPO and SAC agent implementation
+- Brian Lam (014220934) — DQN baseline, heuristic baselines, evaluation and reporting
 
 ## What this project is about
 
-ML inference servers need to batch requests before sending them to the GPU. Bigger batches = better GPU utilization but higher latency. We're training an RL agent to pick the right batch size on the fly, instead of relying on fixed heuristics.
+ML inference servers need to batch requests before sending them to the GPU. Bigger batches = better GPU utilization but higher latency. We're training RL agents to pick the right batch size on the fly, instead of relying on fixed heuristics.
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+```
+
+## Run experiments
+
+```bash
+python run_all.py
+```
+
+This trains DQN (baseline), PPO, and SAC across three traffic patterns (steady, bursty, diurnal) and saves results to `results/all_results.json`.
 
 ## Repo structure
 
 ```
 ├── README.md
+├── requirements.txt
+├── run_all.py                              # run all experiments
 ├── data/
-│   ├── AzureLLMInferenceTrace_code.csv    # Azure trace — code generation (8.8k requests)
-│   └── AzureLLMInferenceTrace_conv.csv    # Azure trace — conversation (19.4k requests)
-├── notebooks/                              # EDA and experiments
-├── src/                                    # Source code
-│   ├── env/                                # Gymnasium environment
-│   ├── agents/                             # DQN, PPO, bandit baselines
-│   └── baselines/                          # Heuristic baselines
-└── docs/                                   # Proposal, check-ins, report
+│   ├── AzureLLMInferenceTrace_code.csv
+│   └── AzureLLMInferenceTrace_conv.csv
+├── notebooks/
+│   └── 01_eda_azure_traces.py              # EDA on Azure traces
+├── src/
+│   ├── env/
+│   │   └── serving_env.py                  # Gymnasium environment
+│   ├── agents/
+│   │   ├── dqn_agent.py                    # DQN (baseline)
+│   │   ├── ppo_agent.py                    # PPO (core)
+│   │   └── sac_agent.py                    # SAC (core)
+│   └── baselines/
+│       └── heuristics.py                   # Static, Timeout, Threshold
+├── results/                                # experiment outputs
+└── docs/                                   # proposal, check-ins, report
 ```
-
-## Dataset
-
-We use the [Azure LLM Inference Trace 2023](https://github.com/Azure/AzurePublicDataset) from Microsoft. Two CSV files with ~28k real production requests (timestamps, input tokens, output tokens). We use these to calibrate our simulator's arrival patterns and sequence length distributions.
 
 ## Algorithms
 
-- **DQN** — discrete batch size selection
-- **PPO** — policy gradient comparison
-- **Epsilon-Greedy / UCB** — bandit baselines
-- **Heuristics** — static batching, timeout-based, threshold rule
+**Core comparison (per professor feedback):**
+- **PPO** — policy gradient, handles non-stationary traffic well
+- **SAC** — combines value-based and actor-critic, entropy-regularized
+
+**Baselines:**
+- **DQN** — value-based RL baseline
+- **Static Batcher** — always same batch size
+- **Timeout Batcher** — big batch if queue is full, small otherwise
+- **Threshold Batcher** — scales batch size with queue length
+
+## Dataset
+
+[Azure LLM Inference Trace 2023](https://github.com/Azure/AzurePublicDataset) — ~28k real production requests used to calibrate our simulator.
