@@ -1,0 +1,182 @@
+[
+  {
+    "name": "Static(bs=8)",
+    "reward_mean": 31.253750000000043,
+    "reward_std": 0.45406325275230225,
+    "served_mean": 5000.6,
+    "violations_mean": 0.0,
+    "latency_mean": 18.826250446537756,
+    "latency_p99": 27.23126464355564,
+    "pattern": "steady"
+  },
+  {
+    "name": "Timeout",
+    "reward_mean": 30.954999999999536,
+    "reward_std": 0.446486281984111,
+    "served_mean": 4952.8,
+    "violations_mean": 0.0,
+    "latency_mean": 18.60480902458816,
+    "latency_p99": 44.213217879070626,
+    "pattern": "steady"
+  },
+  {
+    "name": "Threshold",
+    "reward_mean": 30.98249999999971,
+    "reward_std": 0.5463572549166011,
+    "served_mean": 4966.8,
+    "violations_mean": 0.0,
+    "latency_mean": 18.729787334483298,
+    "latency_p99": 27.399510000268616,
+    "pattern": "steady"
+  },
+  {
+    "name": "DQN",
+    "pattern": "steady",
+    "reward_mean": 31.48312499999963,
+    "reward_std": 0.3112606674878757,
+    "served_mean": 5037.3,
+    "violations_mean": 0.0,
+    "latency_mean": 18.787222365791592,
+    "latency_p99": 44.31947159062021
+  },
+  {
+    "name": "PPO",
+    "pattern": "steady",
+    "reward_mean": 31.522500000000058,
+    "reward_std": 0.29659789699188066,
+    "served_mean": 5043.6,
+    "violations_mean": 0.0,
+    "latency_mean": 18.909219341467974,
+    "latency_p99": 27.28432919438748
+  },
+  {
+    "name": "SAC",
+    "pattern": "steady",
+    "reward_mean": 31.527499999999996,
+    "reward_std": 0.2986192182362112,
+    "served_mean": 5044.4,
+    "violations_mean": 0.0,
+    "latency_mean": 18.895283184399265,
+    "latency_p99": 32.62643846301595
+  },
+  {
+    "name": "Static(bs=8)",
+    "reward_mean": -573.624975,
+    "reward_std": 387.56549759004355,
+    "served_mean": 7925.7,
+    "violations_mean": 0.0,
+    "latency_mean": 25.586015849361953,
+    "latency_p99": 28.06231857084623,
+    "pattern": "bursty"
+  },
+  {
+    "name": "Timeout",
+    "reward_mean": 52.110399999999764,
+    "reward_std": 1.843247850941412,
+    "served_mean": 8419.6,
+    "violations_mean": 0.0,
+    "latency_mean": 26.29621455691554,
+    "latency_p99": 45.01557029270964,
+    "pattern": "bursty"
+  },
+  {
+    "name": "Threshold",
+    "reward_mean": 52.45874999999944,
+    "reward_std": 1.7630327173651839,
+    "served_mean": 8422.6,
+    "violations_mean": 0.0,
+    "latency_mean": 26.549778479292076,
+    "latency_p99": 44.99878471096138,
+    "pattern": "bursty"
+  },
+  {
+    "name": "DQN",
+    "pattern": "bursty",
+    "reward_mean": 48.924149999999955,
+    "reward_std": 1.8154207336041788,
+    "served_mean": 8561.0,
+    "violations_mean": 0.0,
+    "latency_mean": 26.686419023015592,
+    "latency_p99": 76.93210445143127
+  },
+  {
+    "name": "PPO",
+    "pattern": "bursty",
+    "reward_mean": -746.0339499999998,
+    "reward_std": 527.2380880043168,
+    "served_mean": 7924.2,
+    "violations_mean": 0.0,
+    "latency_mean": 25.58147152531382,
+    "latency_p99": 28.062775249817694
+  },
+  {
+    "name": "SAC",
+    "pattern": "bursty",
+    "reward_mean": 48.78222500000002,
+    "reward_std": 1.7023578004124158,
+    "served_mean": 8558.1,
+    "violations_mean": 0.0,
+    "latency_mean": 26.73310033318468,
+    "latency_p99": 76.08803402295531
+  },
+  {
+    "name": "Static(bs=8)",
+    "reward_mean": -2.616899999999986,
+    "reward_std": 26.79339600867178,
+    "served_mean": 5024.4,
+    "violations_mean": 0.0,
+    "latency_mean": 19.564368997561434,
+    "latency_p99": 27.74274881734089,
+    "pattern": "diurnal"
+  },
+  {
+    "name": "Timeout",
+    "reward_mean": 31.215624999999733,
+    "reward_std": 0.410118599462396,
+    "served_mean": 4994.5,
+    "violations_mean": 0.0,
+    "latency_mean": 19.25832481449022,
+    "latency_p99": 44.63740024353094,
+    "pattern": "diurnal"
+  },
+  {
+    "name": "Threshold",
+    "reward_mean": 28.966249999999967,
+    "reward_std": 0.5924934071363132,
+    "served_mean": 4993.0,
+    "violations_mean": 0.0,
+    "latency_mean": 18.540219854404963,
+    "latency_p99": 43.08795618831815,
+    "pattern": "diurnal"
+  },
+  {
+    "name": "DQN",
+    "pattern": "diurnal",
+    "reward_mean": 31.50187500000009,
+    "reward_std": 0.21327157716161738,
+    "served_mean": 5040.3,
+    "violations_mean": 0.0,
+    "latency_mean": 19.575322252930313,
+    "latency_p99": 40.33080330292178
+  },
+  {
+    "name": "PPO",
+    "pattern": "diurnal",
+    "reward_mean": 0.7754750000001579,
+    "reward_std": 25.733087400380587,
+    "served_mean": 5039.9,
+    "violations_mean": 0.0,
+    "latency_mean": 19.632710916562633,
+    "latency_p99": 27.851328021090648
+  },
+  {
+    "name": "SAC",
+    "pattern": "diurnal",
+    "reward_mean": 31.500000000000274,
+    "reward_std": 0.212260894891175,
+    "served_mean": 5040.0,
+    "violations_mean": 0.0,
+    "latency_mean": 19.621330547118202,
+    "latency_p99": 42.25218177213802
+  }
+]

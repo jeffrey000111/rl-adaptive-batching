@@ -1,0 +1,57 @@
+[
+  {
+    "label": "latency-heavy (0.9/0.1)",
+    "lat_w": 0.9,
+    "tput_w": 0.1,
+    "reward_mean": 6.673437499999996,
+    "served_mean": 8213.4,
+    "latency_mean": 25.890722631755825,
+    "latency_p99": 77.53127858047182,
+    "avg_batch_size": 32.0,
+    "batch_size_std": 0.0
+  },
+  {
+    "label": "latency-leaning (0.7/0.3)",
+    "lat_w": 0.7,
+    "tput_w": 0.3,
+    "reward_mean": -436.7988874999999,
+    "served_mean": 7829.4,
+    "latency_mean": 25.377431836603897,
+    "latency_p99": 28.16127911378351,
+    "avg_batch_size": 8.0,
+    "batch_size_std": 0.0
+  },
+  {
+    "label": "balanced (0.5/0.5)",
+    "lat_w": 0.5,
+    "tput_w": 0.5,
+    "reward_mean": 58.00718749999997,
+    "served_mean": 8213.4,
+    "latency_mean": 25.890722631755825,
+    "latency_p99": 77.53127858047182,
+    "avg_batch_size": 32.0,
+    "batch_size_std": 0.0
+  },
+  {
+    "label": "throughput-leaning (0.3/0.7)",
+    "lat_w": 0.3,
+    "tput_w": 0.7,
+    "reward_mean": 80.2395721240893,
+    "served_mean": 8209.2,
+    "latency_mean": 25.849541382638883,
+    "latency_p99": 94.3826777737507,
+    "avg_batch_size": 64.0,
+    "batch_size_std": 0.0
+  },
+  {
+    "label": "throughput-heavy (0.1/0.9)",
+    "lat_w": 0.1,
+    "tput_w": 0.9,
+    "reward_mean": -6093.9432000000015,
+    "served_mean": 4000.0,
+    "latency_mean": 16.487852710729467,
+    "latency_p99": 18.891880049025467,
+    "avg_batch_size": 4.0,
+    "batch_size_std": 0.0
+  }
+]
