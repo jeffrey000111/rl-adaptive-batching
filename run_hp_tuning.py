@@ -1,37 +1,37 @@
 """
-Hyperparameter tuning for PPO and SAC.
-Sweeps over learning rates, discount factors, and network sizes.
-Saves results to results/hp_tuning/
+Hyperparameter Tuning Experiment
+Sweeps learning rate and network architecture for PPO, SAC, and DQN
+on bursty traffic (the hardest pattern).
 
 Usage: python run_hp_tuning.py
+Takes ~25-30 min on a laptop.
 """
 
-import sys, os, json, itertools
+import sys, os, json
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from env.serving_env import InferenceServingEnv
 from agents.sac_agent import ContinuousToDiscreteWrapper
-from stable_baselines3 import PPO, SAC, DQN
+from stable_baselines3 import DQN, PPO, SAC
 import numpy as np
 
-# ------ config ------
-PATTERN = "bursty"          # hardest pattern, most useful for tuning
-TIMESTEPS = 20000           # shorter runs for tuning (increase for final)
-EVAL_EPS = 5
+PATTERN = "bursty"
+TIMESTEPS = 50000
+EVAL_EPS = 10
 SEED = 42
 
-LRS = [1e-4, 3e-4, 1e-3]
-GAMMAS = [0.95, 0.99]
-ARCHS = [[32, 32], [64, 64], [128, 128]]
+# Hyperparameter grid
+LR_OPTIONS = [1e-4, 3e-4, 1e-3]
+ARCH_OPTIONS = [[32, 32], [64, 64], [128, 128]]
 
 
-def eval_model(model, pattern, episodes, use_wrapper=False):
+def eval_model(model, pattern, use_wrapper=False):
     base = InferenceServingEnv(pattern=pattern, seed=99)
     env = ContinuousToDiscreteWrapper(base) if use_wrapper else base
     rewards = []
-    for ep in range(episodes):
-        obs, _ = env.reset(seed=ep + 200)
+    for ep in range(EVAL_EPS):
+        obs, _ = env.reset(seed=ep + 500)
         total = 0
         while True:
             a, _ = model.predict(obs, deterministic=True)
@@ -43,87 +43,100 @@ def eval_model(model, pattern, episodes, use_wrapper=False):
     return float(np.mean(rewards)), float(np.std(rewards))
 
 
-def tune_ppo():
-    print("\n" + "=" * 60)
-    print("  PPO HYPERPARAMETER TUNING")
-    print("=" * 60)
-    results = []
+results = []
+total_configs = len(LR_OPTIONS) * len(ARCH_OPTIONS) * 3  # 3 algos
+config_num = 0
 
-    for lr, gamma, arch in itertools.product(LRS, GAMMAS, ARCHS):
-        tag = f"lr={lr}_g={gamma}_arch={arch}"
-        print(f"\n  Training PPO: {tag}")
-        try:
-            env = InferenceServingEnv(pattern=PATTERN, seed=SEED)
-            model = PPO("MlpPolicy", env, learning_rate=lr, gamma=gamma,
-                        n_steps=512, batch_size=64, n_epochs=10,
-                        gae_lambda=0.95, clip_range=0.2, ent_coef=0.01,
-                        policy_kwargs=dict(net_arch=arch),
-                        verbose=0, seed=SEED, device="cpu")
-            model.learn(total_timesteps=TIMESTEPS)
-            mean_r, std_r = eval_model(model, PATTERN, EVAL_EPS)
-            result = {"algo": "PPO", "lr": lr, "gamma": gamma,
-                      "arch": str(arch), "reward_mean": mean_r, "reward_std": std_r}
-            results.append(result)
-            print(f"    reward: {mean_r:.1f} +/- {std_r:.1f}")
-        except Exception as e:
-            print(f"    FAILED: {e}")
+for algo_name in ["DQN", "PPO", "SAC"]:
+    print(f"\n{'='*60}")
+    print(f"  TUNING: {algo_name}")
+    print(f"{'='*60}")
 
-    return results
+    best_reward = -float('inf')
+    best_config = None
 
+    for lr in LR_OPTIONS:
+        for arch in ARCH_OPTIONS:
+            config_num += 1
+            arch_str = f"{arch[0]}x{arch[1]}"
+            print(f"  [{config_num}/{total_configs}] {algo_name} lr={lr} arch={arch_str}...", end=" ")
 
-def tune_sac():
-    print("\n" + "=" * 60)
-    print("  SAC HYPERPARAMETER TUNING")
-    print("=" * 60)
-    results = []
-    ent_coefs = ["auto", 0.1, 0.2]
-
-    for lr, gamma, arch in itertools.product(LRS, GAMMAS, ARCHS):
-        for ent in ent_coefs:
-            tag = f"lr={lr}_g={gamma}_arch={arch}_ent={ent}"
-            print(f"\n  Training SAC: {tag}")
             try:
-                base = InferenceServingEnv(pattern=PATTERN, seed=SEED)
-                env = ContinuousToDiscreteWrapper(base)
-                model = SAC("MlpPolicy", env, learning_rate=lr, gamma=gamma,
-                            buffer_size=5000, learning_starts=500,
-                            batch_size=64, tau=0.005, ent_coef=ent,
-                            policy_kwargs=dict(net_arch=arch),
-                            verbose=0, seed=SEED, device="cpu")
-                model.learn(total_timesteps=TIMESTEPS)
-                mean_r, std_r = eval_model(model, PATTERN, EVAL_EPS, use_wrapper=True)
-                result = {"algo": "SAC", "lr": lr, "gamma": gamma,
-                          "arch": str(arch), "ent_coef": str(ent),
-                          "reward_mean": mean_r, "reward_std": std_r}
-                results.append(result)
-                print(f"    reward: {mean_r:.1f} +/- {std_r:.1f}")
+                if algo_name == "DQN":
+                    env = InferenceServingEnv(pattern=PATTERN, seed=SEED)
+                    model = DQN("MlpPolicy", env, learning_rate=lr, buffer_size=10000,
+                                learning_starts=500, batch_size=64, gamma=0.99,
+                                policy_kwargs=dict(net_arch=arch),
+                                verbose=0, seed=SEED, device="cpu")
+                    model.learn(total_timesteps=TIMESTEPS)
+                    reward_mean, reward_std = eval_model(model, PATTERN)
+
+                elif algo_name == "PPO":
+                    env = InferenceServingEnv(pattern=PATTERN, seed=SEED)
+                    model = PPO("MlpPolicy", env, learning_rate=lr, n_steps=512,
+                                batch_size=64, n_epochs=10, gamma=0.99, gae_lambda=0.95,
+                                clip_range=0.2, ent_coef=0.01,
+                                policy_kwargs=dict(net_arch=arch),
+                                verbose=0, seed=SEED, device="cpu")
+                    model.learn(total_timesteps=TIMESTEPS)
+                    reward_mean, reward_std = eval_model(model, PATTERN)
+
+                elif algo_name == "SAC":
+                    base = InferenceServingEnv(pattern=PATTERN, seed=SEED)
+                    env = ContinuousToDiscreteWrapper(base)
+                    model = SAC("MlpPolicy", env, learning_rate=lr, buffer_size=10000,
+                                learning_starts=500, batch_size=64, gamma=0.99, tau=0.005,
+                                ent_coef="auto",
+                                policy_kwargs=dict(net_arch=arch),
+                                verbose=0, seed=SEED, device="cpu")
+                    model.learn(total_timesteps=TIMESTEPS)
+                    reward_mean, reward_std = eval_model(model, PATTERN, use_wrapper=True)
+
+                print(f"reward={reward_mean:.1f} +/- {reward_std:.1f}")
+
+                entry = {
+                    "algo": algo_name,
+                    "lr": lr,
+                    "arch": arch_str,
+                    "reward_mean": reward_mean,
+                    "reward_std": reward_std,
+                }
+                results.append(entry)
+
+                if reward_mean > best_reward:
+                    best_reward = reward_mean
+                    best_config = entry
+
             except Exception as e:
-                print(f"    FAILED: {e}")
+                print(f"FAILED: {e}")
+                results.append({
+                    "algo": algo_name, "lr": lr, "arch": arch_str,
+                    "reward_mean": None, "reward_std": None, "error": str(e)
+                })
 
-    return results
+    if best_config:
+        print(f"\n  Best {algo_name}: lr={best_config['lr']} arch={best_config['arch']} reward={best_config['reward_mean']:.1f}")
 
+# Save results
+os.makedirs("results/hp_tuning", exist_ok=True)
+with open("results/hp_tuning/hp_tuning_results.json", "w") as f:
+    json.dump(results, f, indent=2)
 
-if __name__ == "__main__":
-    os.makedirs("results/hp_tuning", exist_ok=True)
+# Print summary
+print(f"\n\n{'='*70}")
+print(f"{'Algo':6s} {'LR':>8s} {'Arch':>8s} {'Reward':>10s} {'Std':>8s}")
+print(f"{'-'*70}")
+for r in results:
+    if r["reward_mean"] is not None:
+        print(f"{r['algo']:6s} {r['lr']:>8.0e} {r['arch']:>8s} {r['reward_mean']:>10.1f} {r['reward_std']:>8.1f}")
+print(f"{'='*70}")
 
-    ppo_results = tune_ppo()
-    sac_results = tune_sac()
+# Print best per algo
+print(f"\nBest configs:")
+for algo in ["DQN", "PPO", "SAC"]:
+    algo_results = [r for r in results if r["algo"] == algo and r["reward_mean"] is not None]
+    if algo_results:
+        best = max(algo_results, key=lambda x: x["reward_mean"])
+        print(f"  {algo}: lr={best['lr']}, arch={best['arch']}, reward={best['reward_mean']:.1f}")
 
-    all_results = ppo_results + sac_results
-
-    with open("results/hp_tuning/tuning_results.json", "w") as f:
-        json.dump(all_results, f, indent=2)
-
-    # print best configs
-    if ppo_results:
-        best_ppo = max(ppo_results, key=lambda x: x["reward_mean"])
-        print(f"\n\nBest PPO: lr={best_ppo['lr']}, gamma={best_ppo['gamma']}, "
-              f"arch={best_ppo['arch']}, reward={best_ppo['reward_mean']:.1f}")
-
-    if sac_results:
-        best_sac = max(sac_results, key=lambda x: x["reward_mean"])
-        print(f"Best SAC: lr={best_sac['lr']}, gamma={best_sac['gamma']}, "
-              f"arch={best_sac['arch']}, ent={best_sac.get('ent_coef','auto')}, "
-              f"reward={best_sac['reward_mean']:.1f}")
-
-    print(f"\nResults saved to results/hp_tuning/tuning_results.json")
+print(f"\nSaved to results/hp_tuning/hp_tuning_results.json")
