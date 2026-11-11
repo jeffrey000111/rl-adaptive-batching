@@ -1,0 +1,89 @@
+{
+  "protocol": {
+    "env": "legacy MultiStageServingEnv(num_stages=3, pattern='bursty')",
+    "episodes": 10,
+    "episode_seeds": "ep + 500"
+  },
+  "rows": [
+    {
+      "policy": "Fixed batch 1",
+      "source": "re-run",
+      "reward_mean": -64686.61099999999,
+      "served": 997.9,
+      "avg_jct": 439.3152941791306,
+      "p99_jct": 868.631
+    },
+    {
+      "policy": "Fixed batch 2",
+      "source": "re-run",
+      "reward_mean": -64185.73949999999,
+      "served": 1995.8,
+      "avg_jct": 379.4138549918292,
+      "p99_jct": 749.342
+    },
+    {
+      "policy": "Fixed batch 4",
+      "source": "re-run",
+      "reward_mean": -54259.33450000001,
+      "served": 3991.0,
+      "avg_jct": 260.3162683272884,
+      "p99_jct": 516.533
+    },
+    {
+      "policy": "Fixed batch 8",
+      "source": "re-run",
+      "reward_mean": -2645.097,
+      "served": 7851.6,
+      "avg_jct": 34.304051421809454,
+      "p99_jct": 63.7
+    },
+    {
+      "policy": "Fixed batch 16",
+      "source": "re-run",
+      "reward_mean": 7835.191500000001,
+      "served": 8334.6,
+      "avg_jct": 2.3847551929402555,
+      "p99_jct": 4.3
+    },
+    {
+      "policy": "Fixed batch 32",
+      "source": "re-run",
+      "reward_mean": 7907.242500000003,
+      "served": 8335.1,
+      "avg_jct": 2.0363484826243523,
+      "p99_jct": 3.0
+    },
+    {
+      "policy": "Fixed batch 64",
+      "source": "re-run",
+      "reward_mean": 7906.453000000001,
+      "served": 8335.1,
+      "avg_jct": 2.0,
+      "p99_jct": 2.0
+    },
+    {
+      "policy": "Threshold",
+      "source": "re-run",
+      "reward_mean": 7292.961999999998,
+      "served": 8318.4,
+      "avg_jct": 4.805328808995081,
+      "p99_jct": 7.0
+    },
+    {
+      "policy": "Downstream-Aware",
+      "source": "re-run",
+      "reward_mean": 7181.165999999999,
+      "served": 8314.2,
+      "avg_jct": 5.321330637695505,
+      "p99_jct": 7.9
+    },
+    {
+      "policy": "PPO (original run, not retrained)",
+      "source": "stored",
+      "reward_mean": 7841.642999999998,
+      "served": 8333.9,
+      "avg_jct": 2.2976911206992336,
+      "p99_jct": 3.1
+    }
+  ]
+}

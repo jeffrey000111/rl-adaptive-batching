@@ -1,2 +1,12 @@
 __pycache__/
 *.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+.DS_Store
+
+# Private interview notes (Chinese), never committed.
+docs/walkthrough_zh.md

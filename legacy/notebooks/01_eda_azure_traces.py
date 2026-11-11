@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Azure LLM Inference Trace - Exploratory Data Analysis
-# Quick look at Microsoft's production traces to calibrate our simulator.
+# Quick look at Microsoft's production traces as background for our simulator (the simulators never read them).
 
 # %%
 import pandas as pd
@@ -92,7 +92,7 @@ plt.savefig("../notebooks/arrival_rates.png", dpi=100)
 plt.show()
 
 # %%
-# key takeaways for simulator calibration
+# key takeaways for the simulator
 print("=== Key Numbers for Simulator ===")
 print(f"Code trace median input tokens: {code_df['ContextTokens'].median():.0f}")
 print(f"Code trace median output tokens: {code_df['GeneratedTokens'].median():.0f}")
