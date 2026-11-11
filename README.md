@@ -3,9 +3,9 @@
 Reinforcement Learning course project — Spring 2026, SJSU
 
 ## Team
-- Yumeng Ren (018399628) — Environment design and simulation
-- Haoran Jiang (018321927) — PPO and SAC agent implementation
-- Brian Lam (014220934) — DQN baseline, heuristic baselines, evaluation and reporting
+- Yumeng Ren — Environment design and simulation
+- Haoran Jiang — PPO and SAC agent implementation
+- Brian Lam — DQN baseline, heuristic baselines, evaluation and reporting
 
 ## What this project is about
 
