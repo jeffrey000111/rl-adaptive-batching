@@ -9,11 +9,50 @@ This project compares reinforcement-learning policies (DQN and PPO, from
 Stable-Baselines3) against tuned rule-based policies for choosing when to
 dispatch a batch and how large it should be.
 
+> **Scope.** Arrival times are replayed from a production LLM-service trace,
+> but the processing-time model describes whole-batch inference of an
+> encoder-type service (embedding, classification, re-ranking). It does not
+> represent the continuous, token-level batching used to serve generative LLMs.
+
 > **Status: rework in progress.** This repository started as a Spring 2026
 > reinforcement-learning course project at SJSU. Its headline result did not
 > hold up (see below), so the simulator and the experiments are being rebuilt.
-> There is **no current result** yet; this section will be replaced by
-> generated tables once the new experiments have run.
+> The simulator exists; **no learned policy has been evaluated yet**, so the
+> research question is still open.
+
+## Simulator sanity check: fixed batch sizes
+
+The simulator is discrete-event: a server is occupied while it processes a
+batch, and a request's latency is its queueing time plus its processing time.
+Batch processing time is `fixed + per_token x batch_size x longest_sequence`,
+with both parameters fitted to published BERT-base measurements on an NVIDIA
+T4 (see [docs/decisions.md](docs/decisions.md), D7). The published
+measurements cover batch sizes 1-8; **batch sizes 16 and 32 are a linear
+extrapolation**.
+
+Mean latency of fixed-batch-size policies on the **train** split (simulated,
+one server), for two ways of using a fixed size b: "greedy cap" dispatches
+immediately with at most b requests; "full batch" waits until b requests are
+queued (at most one second).
+
+<!-- BEGIN GENERATED: fixed-batch-sweep -->
+| Trace | Nominal load | Load in busiest minute | No batching | Best greedy cap | Best full-batch size |
+|---|---|---|---|---|---|
+| conv | 0.5 | 0.72 | 2026 ms | b=8 (37 ms) | b=2 (69 ms) |
+| conv | 0.7 | 1.01 | 13702 ms | b=32 (89 ms) | b=8 (201 ms) |
+| conv | 0.9 | 1.29 | 31352 ms | b=32 (1101 ms) | b=32 (1367 ms) |
+| code | 0.5 | 1.67 | 4235 ms | b=32 (1020 ms) | b=16 (1109 ms) |
+| code | 0.7 | 2.33 | 12648 ms | b=32 (1557 ms) | b=16 (1643 ms) |
+| code | 0.9 | 3.00 | 20060 ms | b=32 (2855 ms) | b=32 (2947 ms) |
+<!-- END GENERATED: fixed-batch-sweep -->
+
+![Mean latency against batch size](results/fixed_batch_sweep/latency_vs_batch.png)
+
+What this shows: no batching is far from optimal at every load; waiting for
+a full batch gives a U-shaped curve whose best size grows with load; and a
+policy that never waits is not hurt by a large cap. Nominal load is computed
+from the mean arrival rate, so bursts push the busiest minute well above it.
+Reproduce with `make sweep`.
 
 ## What was wrong with the original result
 
@@ -67,7 +106,7 @@ table above with `make legacy-repro`.
 | Phase | Content | State |
 |---|---|---|
 | 0 | Archive old code, packaging, lint, tests, CI | done |
-| 1 | Discrete-event simulator replaying the Azure trace timestamps, with train / dev / test splits | not started |
+| 1 | Discrete-event simulator replaying the Azure trace timestamps, with train / dev / test splits | in progress |
 | 2 | Tuned heuristic baselines vs. DQN / PPO, multiple seeds, paired bootstrap confidence intervals, ablations | not started |
 | 3 | Real batching inference service (FastAPI, CPU model), trace replay load test, simulator-vs-real comparison | not started |
 
@@ -81,6 +120,7 @@ Requires Python 3.10+.
 ```bash
 make setup   # create .venv and install with dev extras
 make check   # ruff + pytest
+make sweep   # fixed-batch-size sweep on the train split + figure
 make docs    # regenerate generated blocks in README.md from results/
 ```
 

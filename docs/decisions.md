@@ -85,3 +85,144 @@ added as optional extras in the phases that introduce them.
 
 **Why.** The simulator and the baselines should be installable and testable
 in CI in seconds, without PyTorch.
+
+## D7. Processing-time model and where its parameters come from
+
+**Decision.** One batch takes
+
+    batch_time = fixed + per_token * batch_size * padded_length
+
+where `padded_length` is the longest request in the batch, and a request's
+length is `min(ContextTokens, 384)` from the trace. Parameters for the default
+server (`BERT_BASE_T4_FP16`): `fixed = 7.616 ms`, `per_token = 0.02174 ms`.
+
+**Source.** Least-squares fit to the eight published median latencies for
+BERT-base, FP16, on one NVIDIA T4 16GB (batch sizes 1, 2, 4, 8; sequence
+lengths 128 and 384) in the NVIDIA DeepLearningExamples TensorFlow BERT
+README. The transcribed rows, the conditions and the link are in
+`data/public_measurements/`. `tests/test_service_time.py` re-runs the fit and
+fails if the constants in the code drift from the data. The fit reproduces
+every published point to within 8% (worst point 7.6%).
+
+**Why this shape.** The fixed term is paid once per model invocation
+whatever the batch size; spreading it over more requests is the entire
+benefit of batching. The compute term is proportional to the tokens
+processed, and a batch is padded to its longest sequence. A linear batch
+latency profile is the standard model in the serving literature (Nexus, SOSP
+2019; Symphony, arXiv 2308.07470, Section 2.1; Inoue, arXiv 1912.06322).
+
+**Alternative considered.** A three-parameter fit (`fixed + c*batch +
+d*batch*length`) lowers the worst error to 2.9% but yields a negative `c`,
+which has no physical reading. Rejected.
+
+**Batching gain, defined.** `gain(b) = throughput(b) / throughput(1)
+= b * s(1) / s(b)`. Its limit for large b is `s(1) / (per_token * length)
+= 1 + fixed / (per_token * length)`. With the adopted parameters: at length
+384 the gain is 1.86 at b=32 and at most 1.91; at length 128 it is 3.44 at
+b=32 and at most 3.74. (Fitting length 128 alone gives a larger fixed term
+and a limit of 4.68; the joint fit is used because one model must serve
+mixed lengths.) Batching can therefore raise throughput by less than a
+factor of two for the default workload. This is what the data says and it
+bounds how much any batching policy, learned or not, can gain.
+
+**Where the assumptions fail.**
+1. Batch sizes above 8 are extrapolated. The action set is 1, 2, 4, 8, 16, 32;
+   16 and 32 are marked as extrapolated in every figure. Real servers can
+   show memory limits or step-like slowdowns at larger batches. Phase 3 must
+   measure up to 32 to test this.
+2. Lengths outside 128-384 are extrapolated. Only about a fifth of trace
+   requests have at most 384 context tokens, so most requests sit at the cap.
+3. The measurements are from a 2020 TensorFlow container without TensorRT.
+4. It is not a model of generative LLM serving, which batches continuously
+   at token level. Arrival times come from an LLM service; the server model
+   is an encoder-type service (embedding, classification, re-ranking).
+5. Processing time is deterministic (published P99 is about 5% above P50) and
+   there is one model instance per stage.
+6. A CPU model (Phase 3) will have a different fixed-to-variable ratio.
+
+**Ablation.** `fixed_length=128` treats every request as 128 tokens, where
+batching helps more.
+
+## D8. Discrete-event engine driven from outside
+
+**Decision.** Time advances from event to event (arrival, batch completion,
+wake-up timer). A decision point exists whenever a stage's server is idle
+and its queue is not empty. The caller answers with `Dispatch(size)` or
+`Wait(timeout)`; after `Wait` the same stage is asked again on its next
+arrival or at the timeout. The engine exposes `next_decision()` / `apply()`
+and never calls a policy itself.
+
+**Why.** (1) A batch that takes 275 ms must make the server unavailable for
+275 ms; with events this is one scheduled completion, with fixed steps it
+needs bookkeeping and a step-size choice that distorts latency. (2) Inverting
+control lets rule-based policies and a Gymnasium environment share one
+engine: an RL environment must return to the agent at each decision point.
+(3) All events at one timestamp are processed before a decision is requested,
+so a policy never sees half of a simultaneous arrival group.
+
+**Consequences.** The simulation has no randomness; identical inputs give
+identical outputs, and variation across training seeds comes only from the
+learning algorithm. `Dispatch` with a size outside `1..queue_length` raises
+instead of being clamped, so policy bugs surface. A policy that waits
+although a request has been queued for `stall_limit_s` raises
+`SimulationStalledError` instead of looping forever.
+
+## D9. Offered load and time scaling
+
+**Decision.** `load = mean arrival rate / capacity`, where capacity is the
+throughput of the slowest stage running back-to-back batches of the largest
+allowed size at the reference length (384). A load level is reached by
+multiplying all trace timestamps by one factor. The factor is computed from
+the **train** split only and applied unchanged to dev and test.
+
+**Why.** Load 1.0 is then the point beyond which no policy is stable, so
+levels are comparable across server models. Computing the factor from train
+keeps evaluation data out of the workload definition.
+
+**Known consequences, to be reported with every result.**
+- The realised load on dev and test differs from the nominal one; both are
+  reported.
+- Nominal load is an average. The traces are not stationary, so the busiest
+  minute is far above it (see the generated table in the README): the system
+  is temporarily overloaded at nominal loads well below 1.
+- Compressing time assumes higher load means the same arrival pattern played
+  faster; real growth would smooth bursts.
+
+## D10. What "fixed batch size" means, and what the sweep showed
+
+**Decision.** Two fixed-size families are distinguished: `GreedyBatch(b)`
+(never wait; at most b per batch) and `WaitForBatch(b, max_wait)` (wait for b
+requests or until the oldest has waited `max_wait`).
+
+**Finding on the train split** (`results/fixed_batch_sweep/train.json`).
+Waiting for a full batch gives a U-shaped latency curve whose minimum moves
+to larger batches as load grows. Never waiting gives a curve that only
+falls and flattens: a larger cap is never clearly worse, because the cap is
+only reached when a backlog exists. The original expectation that "always
+the largest batch" is clearly bad at high load does **not** hold in this
+simulator: at high load the largest batch is the best fixed choice in both
+families. What is clearly bad is no batching at high load, and waiting for
+the largest batch at low or moderate load. `tests/test_lessons.py` asserts
+exactly these, not the original expectation.
+
+**Implication.** `GreedyBatch(32)` is a strong, parameter-free baseline for
+mean latency. A learned policy can only beat it by sometimes waiting on
+purpose or by choosing a smaller batch than the backlog allows.
+
+## D11. Evaluation blocks (protocol to be fixed before any test run)
+
+**Decision.** Time scaling does not change which requests fall in which
+block, only how long the block lasts, so blocks are defined on the unscaled
+trace. Because equal-time blocks of the code trace are often empty, the
+evaluation split is cut into consecutive blocks of **equal request count**.
+A policy is simulated once over the whole split; each request is assigned to
+the block it arrived in; metrics are computed on requests pooled over blocks;
+uncertainty comes from a paired block bootstrap (the same resampled blocks
+for both policies being compared).
+
+**Why.** Pooling keeps tail percentiles from being computed on a few dozen
+requests per block. Simulating the split in one run avoids restarting from
+an empty system at every block boundary, which would bias latency down.
+
+**Limits.** The code test split has 751 requests; its P99 rests on about 8
+requests and will be reported as unreliable.

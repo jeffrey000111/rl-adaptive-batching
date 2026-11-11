@@ -16,5 +16,7 @@ jobs:
       - run: pip install -e ".[dev]"
       - run: ruff check .
       - run: pytest -q
-      # A small end-to-end experiment step is added here once the simulator
-      # exists (Phase 1).
+      - name: End-to-end smoke experiment (trace -> simulator -> metrics -> docs)
+        run: |
+          python scripts/fixed_batch_sweep.py
+          python scripts/render_docs.py --check

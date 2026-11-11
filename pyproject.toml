@@ -17,6 +17,9 @@ dev = [
     "pytest>=8",
     "ruff>=0.6",
 ]
+plots = [
+    "matplotlib>=3.7",
+]
 # Only needed to re-run the archived course-project code under legacy/.
 legacy = [
     "gymnasium>=0.29",

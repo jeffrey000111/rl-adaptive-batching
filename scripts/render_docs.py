@@ -49,8 +49,31 @@ def legacy_fixed_batch_table() -> str:
     return "\n".join(lines) + "\n"
 
 
+def fixed_batch_sweep_table() -> str:
+    """Best fixed batch size per trace and load on the train split."""
+    data = json.loads((ROOT / "results/fixed_batch_sweep/train.json").read_text())
+
+    def best(runs: dict[str, dict[str, float]]) -> str:
+        size = min(runs, key=lambda b: runs[b]["mean_latency_s"])
+        return f"b={size} ({1e3 * runs[size]['mean_latency_s']:.0f} ms)"
+
+    lines = [
+        "| Trace | Nominal load | Load in busiest minute | No batching | "
+        "Best greedy cap | Best full-batch size |",
+        "|---|---|---|---|---|---|",
+    ]
+    for cell in data["cells"]:
+        greedy, full = cell["policies"]["greedy"], cell["policies"]["full"]
+        lines.append(
+            f"| {cell['trace']} | {cell['nominal_load']} | {cell['peak_load']:.2f} | "
+            f"{1e3 * greedy['1']['mean_latency_s']:.0f} ms | {best(greedy)} | {best(full)} |"
+        )
+    return "\n".join(lines) + "\n"
+
+
 RENDERERS: dict[str, Callable[[], str]] = {
     "legacy-fixed-batch": legacy_fixed_batch_table,
+    "fixed-batch-sweep": fixed_batch_sweep_table,
 }
 
 

@@ -1,0 +1,17 @@
+gpu,model,precision,seq_len,batch_size,throughput_sent_per_s,latency_p50_ms
+T4,base,fp16,128,1,91.93,10.93
+T4,base,fp16,128,2,148.08,13.65
+T4,base,fp16,128,4,215.45,18.68
+T4,base,fp16,128,8,289.52,27.77
+T4,base,fp16,384,1,60.75,16.6
+T4,base,fp16,384,2,82.85,24.26
+T4,base,fp16,384,4,97.78,41.02
+T4,base,fp16,384,8,106.78,74.98
+T4,large,fp16,128,1,40.31,25.14
+T4,large,fp16,128,2,63.79,31.66
+T4,large,fp16,128,4,87.4,45.97
+T4,large,fp16,128,8,107.5,74.59
+T4,large,fp16,384,1,23.05,43.72
+T4,large,fp16,384,2,29.59,67.94
+T4,large,fp16,384,4,34.27,116.67
+T4,large,fp16,384,8,38.29,208.95
