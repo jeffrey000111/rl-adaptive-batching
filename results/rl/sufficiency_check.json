@@ -1,0 +1,16 @@
+[
+  {
+    "condition": "pipeline-conv-load0.7",
+    "training_budget": 300000,
+    "reference_rule": "GreedyBatch(32) at every stage",
+    "reference_dev_mean_latency_s": 0.2381832048999114,
+    "threshold_ratio": 1.5,
+    "dev_mean_latency_s_by_algorithm": {
+      "ppo": 0.2352570832348103,
+      "dqn": 0.23525071423805793
+    },
+    "best_algorithm": "dqn",
+    "ratio": 0.9876880879863643,
+    "passed": true
+  }
+]

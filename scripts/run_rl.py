@@ -24,6 +24,7 @@ from adaptive_batching.experiment import GROUPS, PRIMARY_COMPARISON
 from adaptive_batching.training import (
     ALGORITHMS,
     SEEDS,
+    TOTAL_STEPS,
     TUNING_GRID,
     TUNING_SEED,
     RunSpec,
@@ -36,7 +37,7 @@ MODELS = ROOT / "artifacts/models"
 HYPERPARAMETERS = RESULTS / "hyperparameters.json"
 
 
-def tuning_specs() -> list[RunSpec]:
+def tuning_specs(total_steps: int) -> list[RunSpec]:
     condition = PRIMARY_COMPARISON.id
     return [
         RunSpec(
@@ -46,6 +47,7 @@ def tuning_specs() -> list[RunSpec]:
             hyperparameters=hp,
             out_path=str(RESULTS / "tuning" / f"{algorithm}_{index}.json"),
             model_path=str(MODELS / "tuning" / f"{algorithm}_{index}.zip"),
+            total_steps=total_steps,
         )
         for algorithm in ALGORITHMS
         for index, hp in enumerate(TUNING_GRID[algorithm])
@@ -62,6 +64,7 @@ def main_specs(group: str) -> list[RunSpec]:
             hyperparameters=chosen[algorithm]["hyperparameters"],
             out_path=str(RESULTS / "runs" / condition.id / f"{algorithm}_seed{seed}.json"),
             model_path=str(MODELS / condition.id / f"{algorithm}_seed{seed}.zip"),
+            total_steps=chosen[algorithm]["total_steps"],
         )
         for condition in GROUPS[group]
         for algorithm in ALGORITHMS
@@ -85,6 +88,7 @@ def choose_hyperparameters() -> None:
         chosen[algorithm] = {
             "hyperparameters": {k: best["hyperparameters"][k] for k in TUNING_GRID[algorithm][0]},
             "dev_mean_latency_s": best["selected_metrics"]["dev"]["mean_latency_s"],
+            "total_steps": best["total_steps"],
             "tuned_on": best["condition"],
             "tuning_seed": best["seed"],
         }
@@ -96,9 +100,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--stage", choices=["tune", "primary", "secondary"], required=True)
     parser.add_argument("--workers", type=int, default=6)
+    parser.add_argument("--total-steps", type=int, default=TOTAL_STEPS,
+                        help="training budget for the tune stage (main stages reuse it)")
     args = parser.parse_args()
 
-    specs = tuning_specs() if args.stage == "tune" else main_specs(args.stage)
+    specs = tuning_specs(args.total_steps) if args.stage == "tune" else main_specs(args.stage)
     todo = [s for s in specs if not Path(s.out_path).exists()]
     print(f"{len(specs)} runs, {len(todo)} to do, {args.workers} workers", flush=True)
     started = time.time()
