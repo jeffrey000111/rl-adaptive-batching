@@ -344,3 +344,35 @@ kept separate from the statement "learned policies are worse than rules".
 **Why.** Deviation 1 showed that a learner can fail for reasons that have
 nothing to do with the question. A threshold and a single remedy fixed in
 advance keep that from turning into open-ended tuning on dev.
+
+### Deviation 3 (2026-11-11): exploratory analyses added after the primary test results
+
+**Made after the test results of the six primary conditions were seen**
+(`results/test/`, commit `50caa9e`), and before any secondary or ablation
+test evaluation. Requested by the repository owner. Everything in this
+entry is **post-hoc and exploratory**. None of it changes a registered
+verdict, and the registered tables are reported unchanged next to it.
+
+1. **Per-seed reporting.** For every condition, next to the registered
+   five-seed average: the median over seeds, each seed's test mean latency,
+   and the number of failed seeds. A seed counts as **failed** if its test
+   mean latency is more than twice the strongest baseline's test mean
+   latency. (This definition was written after the per-seed primary results
+   had been seen.)
+2. **Best seed by dev.** For the best RL algorithm of each condition, the
+   seed with the lowest dev mean latency is compared with the strongest
+   baseline on test with the same paired block bootstrap (blocks only; there
+   is a single seed).
+3. **Overload stress test.** The registered test split is lighter than its
+   nominal load because the trace's arrival rate falls in its last fifth
+   (realised load 0.49 and 0.63 at nominal 0.7 and 0.9). For the four
+   primary conditions at nominal load 0.7 and 0.9, the test split is
+   re-scaled by its own mean arrival rate so that its realised load equals
+   the nominal load. The policies are the frozen ones of the same condition:
+   the strongest baseline with its dev-selected parameters and all trained
+   seeds with their dev-selected checkpoints. Nothing is retrained,
+   re-selected or re-tuned. Same metrics, blocks and bootstrap as Section 8.
+4. **Cost.** Wall-clock seconds of the baseline grid search per condition
+   against the summed training time of hyper-parameter tuning plus the five
+   seeds of both algorithms, all measured on the same machine while up to six
+   processes ran in parallel.
