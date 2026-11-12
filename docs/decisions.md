@@ -288,3 +288,35 @@ middle stage is the bottleneck and sets the pipeline capacity.
 interact badly: a large batch released upstream arrives downstream all at
 once. Having a clear bottleneck in the middle makes that interaction
 visible.
+
+## D15. Pre-registration
+
+The hypotheses, conditions, baseline search, model selection, statistics and
+decision rules for Phase 2 are fixed in
+[preregistration.md](preregistration.md) before any policy is evaluated on a
+test split. That document is not edited after approval; changes go to its
+"Deviations" section.
+
+## D16. Learned-policy interface
+
+**Decision.** One environment step is one engine decision point. Actions:
+wait, or dispatch at most 1, 2, 4, 8, 16, 32. The observation includes how
+long the oldest queued request has waited. Reward is minus the
+request-seconds accrued since the previous decision. Trained models are
+evaluated through `LearnedPolicy`, which plugs into the same `simulate()`
+loop as the rules.
+
+**Why.** (1) Without a wait action and the oldest-wait feature a policy
+cannot learn to delay on purpose, which is the only way to beat a greedy
+rule in a single stage (D10). (2) The time integral of the number of
+requests in the system equals the sum of latencies, so the undiscounted
+return is exactly the reported metric; a test checks this identity. A
+hand-weighted reward, as in the original project, can be maximised without
+improving the metric. (3) Sharing `observe` / `to_decision` between training
+and evaluation removes the chance that the two paths differ.
+
+**Trade-offs.** Decisions are unevenly spaced in time, so a discount factor
+below one weights cost by decision count rather than by time; the discount
+is kept close to one (0.999). "Wait" is overridden by a full dispatch once
+the oldest request has waited a whole SLO, so a policy cannot stall an
+episode; this slightly limits the policy space.
