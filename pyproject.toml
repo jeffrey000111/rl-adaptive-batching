@@ -17,6 +17,10 @@ dev = [
     "pytest>=8",
     "ruff>=0.6",
 ]
+rl = [
+    "gymnasium>=0.29",
+    "stable-baselines3>=2.3",
+]
 plots = [
     "matplotlib>=3.7",
 ]

@@ -4,7 +4,7 @@ PY ?= .venv/bin/python
 
 setup:  ## create .venv (Python 3.10+) and install the package with dev extras
 	python3.10 -m venv .venv
-	$(PY) -m pip install -e ".[dev,legacy,plots]"
+	$(PY) -m pip install -e ".[dev,legacy,plots,rl]"
 
 lint:
 	$(PY) -m ruff check .

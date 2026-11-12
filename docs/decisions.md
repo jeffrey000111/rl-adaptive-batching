@@ -158,7 +158,10 @@ needs bookkeeping and a step-size choice that distorts latency. (2) Inverting
 control lets rule-based policies and a Gymnasium environment share one
 engine: an RL environment must return to the agent at each decision point.
 (3) All events at one timestamp are processed before a decision is requested,
-so a policy never sees half of a simultaneous arrival group.
+so a policy never sees half of a simultaneous arrival group. (4) When several
+stages need a decision at the same instant, downstream stages are asked
+first, so an upstream stage sees the queue its neighbour is actually left
+with rather than requests that are about to be dispatched.
 
 **Consequences.** The simulation has no randomness; identical inputs give
 identical outputs, and variation across training seeds comes only from the

@@ -182,6 +182,7 @@ class Engine:
         self._finish_s = np.full((self.num_stages, n), np.nan)
         self._batches: list[Batch] = []
         self._completed = 0
+        self._request_seconds = 0.0
 
     # ------------------------------------------------------------------ state
 
@@ -192,6 +193,15 @@ class Engine:
     @property
     def completed(self) -> int:
         return self._completed
+
+    @property
+    def request_seconds(self) -> float:
+        """Time integral of the number of requests in the system so far.
+
+        When the run is over this equals the sum of all request latencies, so
+        its increments are a per-decision cost that adds up to total latency.
+        """
+        return self._request_seconds
 
     @property
     def queued(self) -> int:
@@ -211,7 +221,9 @@ class Engine:
         if self._pending is not None:
             raise RuntimeError("apply() must be called before asking for the next decision")
         while True:
-            for stage in range(self.num_stages):
+            # Downstream stages decide first, so that an upstream stage deciding
+            # at the same instant sees the queue its neighbour is left with.
+            for stage in reversed(range(self.num_stages)):
                 if self._needs_decision[stage]:
                     self._pending = stage
                     return StageView(self, stage)
@@ -290,6 +302,7 @@ class Engine:
         time_s = min(next_arrival_s, next_event_s)
         if math.isinf(time_s):
             return False
+        self._request_seconds += (self._next_arrival - self._completed) * (time_s - self.now_s)
         self.now_s = float(time_s)
 
         while self._events and self._events[0][0] == time_s:

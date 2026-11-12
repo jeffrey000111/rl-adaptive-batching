@@ -126,16 +126,21 @@ def test_view_reports_queue_wait_downstream_and_recent_arrivals() -> None:
     view = engine.next_decision()
     assert view is not None and (view.stage, view.queue_len) == (0, 1)
     engine.apply(Dispatch(1))  # stage 0 busy until 0.011
-    view = engine.next_decision()  # stage 1 gets request 0 at t=0.011
+
+    # At t=0.011 request 0 reaches stage 1 and stage 0 becomes free. The
+    # downstream stage is asked first.
+    view = engine.next_decision()
+    assert view is not None and view.stage == 1 and view.now_s == pytest.approx(0.011)
+    assert view.queue_len_at(0) == 2
+    engine.apply(Dispatch(1))  # stage 1 busy for 0.022
+
+    view = engine.next_decision()
     assert view is not None and view.stage == 0 and view.now_s == pytest.approx(0.011)
     assert view.queue_len == 2 and view.oldest_wait_s == pytest.approx(0.010)
-    assert view.queue_len_at(1) == 1
+    assert view.queue_len_at(1) == 0  # already dispatched downstream
+    assert view.busy_remaining_s(1) == pytest.approx(0.022)
     assert view.arrivals_in_last(0.0095) == 1 and view.arrivals_in_last(1.0) == 3
     assert view.batch_time_s(2) == pytest.approx(0.012)
-    engine.apply(Dispatch(2))
-    view = engine.next_decision()
-    assert view is not None and view.stage == 1
-    assert view.busy_remaining_s(0) == pytest.approx(0.012)
 
 
 def test_metrics_on_a_hand_computed_run() -> None:
@@ -149,3 +154,12 @@ def test_metrics_on_a_hand_computed_run() -> None:
     assert metrics.throughput_rps == pytest.approx(2 / 0.022)
     assert metrics.mean_batch_size == (1.0,)
     assert summarize(result).slo_violation_rate is None
+
+
+def test_request_seconds_equals_total_latency_when_done() -> None:
+    arrivals = poisson_arrivals(rate=90.0, n=300, seed=5)
+    engine = Engine(arrivals, [100] * 300, [MODEL, SLOW])
+    policy = WaitForBatch(4, 0.02)
+    while (view := engine.next_decision()) is not None:
+        engine.apply(policy.decide(view))
+    assert engine.request_seconds == pytest.approx(engine.result().latency_s.sum())
