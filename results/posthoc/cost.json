@@ -1,0 +1,82 @@
+{
+  "note": "wall-clock seconds per process, measured with up to six processes in parallel",
+  "rl_tuning_seconds_8_runs": 947.1721603870392,
+  "rl_tuning_seconds_discarded_first_round": 1027.908720254898,
+  "per_condition": {
+    "pipeline-code-load0.3": {
+      "baseline_search_seconds": 52.14284110069275,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "pipeline-code-load0.5": {
+      "baseline_search_seconds": 45.3349609375,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "pipeline-code-load0.7": {
+      "baseline_search_seconds": 36.24762320518494,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "pipeline-code-load0.9": {
+      "baseline_search_seconds": 32.52279329299927,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "pipeline-conv-load0.5": {
+      "baseline_search_seconds": 187.78189301490784,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 1309.7806520462036
+    },
+    "pipeline-conv-load0.7": {
+      "baseline_search_seconds": 154.42348504066467,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 1259.7656028270721
+    },
+    "pipeline-conv-load0.9": {
+      "baseline_search_seconds": 114.76664400100708,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 1294.0623626708984
+    },
+    "single-code-load0.3": {
+      "baseline_search_seconds": 0.828376054763794,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "single-code-load0.5": {
+      "baseline_search_seconds": 0.6686699390411377,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "single-code-load0.7": {
+      "baseline_search_seconds": 0.5697438716888428,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "single-code-load0.9": {
+      "baseline_search_seconds": 0.5556232929229736,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "single-conv-load0.3": {
+      "baseline_search_seconds": 3.9160919189453125,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 0.0
+    },
+    "single-conv-load0.5": {
+      "baseline_search_seconds": 2.9492506980895996,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 930.2294561862946
+    },
+    "single-conv-load0.7": {
+      "baseline_search_seconds": 2.262643814086914,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 939.0561373233795
+    },
+    "single-conv-load0.9": {
+      "baseline_search_seconds": 1.7105059623718262,
+      "baseline_configurations": 102,
+      "rl_training_seconds_10_runs": 953.6349859237671
+    }
+  }
+}

@@ -88,3 +88,15 @@ def max_in_system(result: SimulationResult) -> int:
     # At equal times process completions first, so the count is not overstated.
     order = np.lexsort((deltas, times))
     return int(np.cumsum(deltas[order]).max())
+
+
+def stress_test_split(condition: Condition) -> Trace:
+    """Test split re-scaled by its own arrival rate to the condition's nominal load.
+
+    Post-hoc overload stress test (pre-registration, Deviation 3). The
+    registered protocol scales test with the factor computed on train, which
+    leaves test lighter than nominal because the trace's rate falls at its end.
+    """
+    raw = _raw_splits(condition.trace)["test"]
+    stages = condition.scenario.stages
+    return raw.time_scaled(time_scale_for_load(raw, condition.load, stages, MAX_BATCH))

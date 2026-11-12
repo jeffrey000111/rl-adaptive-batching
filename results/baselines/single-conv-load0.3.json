@@ -1,0 +1,112 @@
+{
+  "condition": "single-conv-load0.3",
+  "selection_split": "dev",
+  "splits": {
+    "train": {
+      "requests": 12340,
+      "load": 0.29999999999999993,
+      "peak_load": 0.43161418688630454
+    },
+    "dev": {
+      "requests": 4155,
+      "load": 0.3030388978930305,
+      "peak_load": 0.3958591654874391
+    }
+  },
+  "strongest": {
+    "config": [
+      {
+        "family": "greedy",
+        "cap": 4
+      }
+    ],
+    "dev_mean_latency_s": 0.022588847876712462,
+    "dev_slo_violation_rate": 0.0
+  },
+  "best_shared_parameters": {
+    "config": [
+      {
+        "family": "greedy",
+        "cap": 4
+      }
+    ],
+    "dev_mean_latency_s": 0.022588847876712462,
+    "dev_slo_violation_rate": 0.0
+  },
+  "best_by_family": {
+    "greedy": {
+      "config": [
+        {
+          "family": "greedy",
+          "cap": 4
+        }
+      ],
+      "dev_mean_latency_s": 0.022588847876712462,
+      "dev_slo_violation_rate": 0.0
+    },
+    "full": {
+      "config": [
+        {
+          "family": "full",
+          "batch": 1,
+          "wait_mult": 0.5
+        }
+      ],
+      "dev_mean_latency_s": 0.024698366287455368,
+      "dev_slo_violation_rate": 0.0
+    },
+    "threshold": {
+      "config": [
+        {
+          "family": "threshold",
+          "k": 1,
+          "wait_mult": 0.5
+        }
+      ],
+      "dev_mean_latency_s": 0.02260216936407708,
+      "dev_slo_violation_rate": 0.0
+    }
+  },
+  "configurations_evaluated": 102,
+  "strongest_metrics": {
+    "train": {
+      "requests": 12340,
+      "completed": 12340,
+      "mean_latency_s": 0.023882554245027814,
+      "p50_latency_s": 0.01765092095217824,
+      "p95_latency_s": 0.04578348584011031,
+      "p99_latency_s": 0.05867400190539314,
+      "slo_violation_rate": 0.0,
+      "throughput_rps": 34.94702360219727,
+      "busy_time_s": [
+        178.1580347200178
+      ],
+      "utilization": [
+        0.5045456275754897
+      ],
+      "mean_batch_size": [
+        1.181200344596535
+      ]
+    },
+    "dev": {
+      "requests": 4155,
+      "completed": 4155,
+      "mean_latency_s": 0.022588847876712462,
+      "p50_latency_s": 0.01596416000000289,
+      "p95_latency_s": 0.04457106299858253,
+      "p99_latency_s": 0.055309007768795486,
+      "slo_violation_rate": 0.0,
+      "throughput_rps": 35.342460767542555,
+      "busy_time_s": [
+        58.74890516000257
+      ],
+      "utilization": [
+        0.49971862232333797
+      ],
+      "mean_batch_size": [
+        1.1557719054242004
+      ]
+    }
+  },
+  "search_seconds": 3.9160919189453125
+}

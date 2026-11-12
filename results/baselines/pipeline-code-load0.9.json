@@ -1,0 +1,192 @@
+{
+  "condition": "pipeline-code-load0.9",
+  "selection_split": "dev",
+  "splits": {
+    "train": {
+      "requests": 6521,
+      "load": 0.8999999999999999,
+      "peak_load": 2.9970361206146294
+    },
+    "dev": {
+      "requests": 1547,
+      "load": 0.6405305934672593,
+      "peak_load": 1.6502667246422327
+    }
+  },
+  "strongest": {
+    "config": [
+      {
+        "family": "greedy",
+        "cap": 2
+      },
+      {
+        "family": "greedy",
+        "cap": 16
+      },
+      {
+        "family": "greedy",
+        "cap": 4
+      }
+    ],
+    "dev_mean_latency_s": 2.546836427730649,
+    "dev_slo_violation_rate": 0.43374272786037493
+  },
+  "best_shared_parameters": {
+    "config": [
+      {
+        "family": "greedy",
+        "cap": 16
+      },
+      {
+        "family": "greedy",
+        "cap": 16
+      },
+      {
+        "family": "greedy",
+        "cap": 16
+      }
+    ],
+    "dev_mean_latency_s": 2.5855921340996306,
+    "dev_slo_violation_rate": 0.43956043956043955
+  },
+  "best_by_family": {
+    "greedy": {
+      "config": [
+        {
+          "family": "greedy",
+          "cap": 16
+        },
+        {
+          "family": "greedy",
+          "cap": 16
+        },
+        {
+          "family": "greedy",
+          "cap": 16
+        }
+      ],
+      "dev_mean_latency_s": 2.5855921340996306,
+      "dev_slo_violation_rate": 0.43956043956043955
+    },
+    "full": {
+      "config": [
+        {
+          "family": "full",
+          "batch": 16,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "full",
+          "batch": 16,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "full",
+          "batch": 16,
+          "wait_mult": 0.5
+        }
+      ],
+      "dev_mean_latency_s": 2.6008342253055643,
+      "dev_slo_violation_rate": 0.4531351001939237
+    },
+    "threshold": {
+      "config": [
+        {
+          "family": "threshold",
+          "k": 2,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "threshold",
+          "k": 2,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "threshold",
+          "k": 2,
+          "wait_mult": 0.5
+        }
+      ],
+      "dev_mean_latency_s": 2.721911944924831,
+      "dev_slo_violation_rate": 0.46412411118293473
+    },
+    "downstream": {
+      "config": [
+        {
+          "family": "downstream",
+          "k": 1,
+          "wait_mult": 16,
+          "hold_at": 16
+        },
+        {
+          "family": "downstream",
+          "k": 1,
+          "wait_mult": 16,
+          "hold_at": 16
+        },
+        {
+          "family": "downstream",
+          "k": 1,
+          "wait_mult": 16,
+          "hold_at": 16
+        }
+      ],
+      "dev_mean_latency_s": 2.708280561455809,
+      "dev_slo_violation_rate": 0.45248868778280543
+    }
+  },
+  "configurations_evaluated": 2514,
+  "strongest_metrics": {
+    "train": {
+      "requests": 6521,
+      "completed": 6521,
+      "mean_latency_s": 9.003962061300081,
+      "p50_latency_s": 9.155278652658055,
+      "p95_latency_s": 15.28248498497851,
+      "p99_latency_s": 16.642303693518695,
+      "slo_violation_rate": 0.9179573685017636,
+      "throughput_rps": 34.66735584994199,
+      "busy_time_s": [
+        79.36143058000333,
+        164.24507925000034,
+        66.94923514000132
+      ],
+      "utilization": [
+        0.4219062957640613,
+        0.8731701593255153,
+        0.35591979120991674
+      ],
+      "mean_batch_size": [
+        1.8868634259259258,
+        15.165116279069768,
+        3.9569174757281553
+      ]
+    },
+    "dev": {
+      "requests": 1547,
+      "completed": 1547,
+      "mean_latency_s": 2.546836427730649,
+      "p50_latency_s": 2.2287230207580038,
+      "p95_latency_s": 5.516090876633092,
+      "p99_latency_s": 6.545267503098581,
+      "slo_violation_rate": 0.43374272786037493,
+      "throughput_rps": 28.520526500679118,
+      "busy_time_s": [
+        18.901186999999908,
+        39.282922000000006,
+        15.991467519999897
+      ],
+      "utilization": [
+        0.34846270505997995,
+        0.7242208260666522,
+        0.2948190518351044
+      ],
+      "mean_batch_size": [
+        1.8460620525059666,
+        12.680327868852459,
+        3.8292079207920793
+      ]
+    }
+  },
+  "search_seconds": 32.52279329299927
+}

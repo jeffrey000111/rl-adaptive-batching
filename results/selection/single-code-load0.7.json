@@ -1,0 +1,60 @@
+{
+  "condition": "single-code-load0.7",
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline_mean_latency_s": {
+    "train": 1.583715252700523,
+    "dev": 0.6423209794128862
+  },
+  "algorithms": {
+    "ppo": {
+      "dev_mean_latency_s_by_seed": [
+        1.1236963727354066,
+        0.667329301688256,
+        1.1997355834527805,
+        0.8032067631141852,
+        0.7267082897037753
+      ],
+      "selected_checkpoint_steps_by_seed": [
+        300000,
+        210000,
+        270000,
+        120000,
+        30000
+      ],
+      "mean_latency_s": {
+        "train": 2.4907359363945956,
+        "dev": 0.9041352621388807
+      },
+      "ratio_to_strongest_baseline": {
+        "train": 1.5727170222976872,
+        "dev": 1.40760661899181
+      },
+      "possible_overfitting": false
+    },
+    "dqn": {
+      "dev_mean_latency_s_by_seed": [
+        1.6344517272715662,
+        1.5527852805471165,
+        1.6389278143028096,
+        1.580647586769621,
+        1.652888020964901
+      ],
+      "selected_checkpoint_steps_by_seed": [
+        210000,
+        240000,
+        300000,
+        270000,
+        300000
+      ],
+      "mean_latency_s": {
+        "train": 4.440813290712567,
+        "dev": 1.611940085971203
+      },
+      "ratio_to_strongest_baseline": {
+        "train": 2.804047812976589,
+        "dev": 2.509555405530421
+      },
+      "possible_overfitting": false
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "condition": "pipeline-code-load0.3",
+  "algorithm": "dqn",
+  "seed": 1,
+  "hyperparameters": {
+    "buffer_size": 100000,
+    "learning_starts": 5000,
+    "train_freq": 4,
+    "target_update_interval": 2000,
+    "exploration_final_eps": 0.02,
+    "learning_rate": 0.0001,
+    "exploration_fraction": 0.1,
+    "gamma": 0.999,
+    "net_arch": [
+      64,
+      64
+    ]
+  },
+  "total_steps": 300000,
+  "episode_requests": 512,
+  "backlog_max": 355,
+  "include_arrival_rate": true,
+  "slo_penalty": 0.0,
+  "curve": [
+    {
+      "steps": 30000,
+      "dev_mean_latency_s": 3.0031046241940635,
+      "dev_slo_violation_rate": 0.48739495798319327
+    },
+    {
+      "steps": 60000,
+      "dev_mean_latency_s": 4.912179864873526,
+      "dev_slo_violation_rate": 0.8849385908209437
+    },
+    {
+      "steps": 90000,
+      "dev_mean_latency_s": 2.7138893904920267,
+      "dev_slo_violation_rate": 0.45119586296056885
+    },
+    {
+      "steps": 120000,
+      "dev_mean_latency_s": 7.027320605711331,
+      "dev_slo_violation_rate": 0.9463477698771816
+    },
+    {
+      "steps": 150000,
+      "dev_mean_latency_s": 6.790906590584179,
+      "dev_slo_violation_rate": 0.9650937297996122
+    },
+    {
+      "steps": 180000,
+      "dev_mean_latency_s": 4.651161213621708,
+      "dev_slo_violation_rate": 0.5656108597285068
+    },
+    {
+      "steps": 210000,
+      "dev_mean_latency_s": 6.0202186186743925,
+      "dev_slo_violation_rate": 0.7543632837750485
+    },
+    {
+      "steps": 240000,
+      "dev_mean_latency_s": 5.935182742492522,
+      "dev_slo_violation_rate": 0.7614738202973497
+    },
+    {
+      "steps": 270000,
+      "dev_mean_latency_s": 5.0473491658926655,
+      "dev_slo_violation_rate": 0.7394957983193278
+    },
+    {
+      "steps": 300000,
+      "dev_mean_latency_s": 5.24203869060297,
+      "dev_slo_violation_rate": 0.8248222365869424
+    }
+  ],
+  "selected_checkpoint_steps": 90000,
+  "selected_metrics": {
+    "train": {
+      "requests": 6521,
+      "completed": 6521,
+      "mean_latency_s": 4.427707055678408,
+      "p50_latency_s": 4.055943649340769,
+      "p95_latency_s": 11.575272318904354,
+      "p99_latency_s": 14.420677967578968,
+      "slo_violation_rate": 0.5831927618463426,
+      "throughput_rps": 12.214814577853485,
+      "busy_time_s": [
+        88.42694151999962,
+        215.3172179999931,
+        84.16989654000078
+      ],
+      "utilization": [
+        0.16563697199102728,
+        0.40332156008114894,
+        0.1576628859489681
+      ],
+      "mean_batch_size": [
+        1.28924476077501,
+        1.6257791074545,
+        1.5112398609501738
+      ]
+    },
+    "dev": {
+      "requests": 1547,
+      "completed": 1547,
+      "mean_latency_s": 2.7138893904920267,
+      "p50_latency_s": 0.8581732524532626,
+      "p95_latency_s": 7.439168842300839,
+      "p99_latency_s": 7.883594672332035,
+      "slo_violation_rate": 0.45119586296056885,
+      "throughput_rps": 9.733841756223963,
+      "busy_time_s": [
+        20.50524089999967,
+        51.56570200000055,
+        19.316882599999794
+      ],
+      "utilization": [
+        0.1290205365829659,
+        0.32445532211803935,
+        0.12154329570262062
+      ],
+      "mean_batch_size": [
+        1.3522727272727273,
+        1.556338028169014,
+        1.6545454545454545
+      ]
+    }
+  },
+  "train_seconds": 118.4391028881073
+}

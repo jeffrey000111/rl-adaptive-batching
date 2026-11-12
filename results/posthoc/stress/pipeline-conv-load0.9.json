@@ -1,0 +1,146 @@
+{
+  "condition": "pipeline-conv-load0.9",
+  "evaluated_on": "test re-scaled to nominal load",
+  "exploratory": true,
+  "requests": 2871,
+  "realised_load": 0.8999999999999999,
+  "failure_ratio": 2.0,
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline": {
+    "requests": 2871,
+    "completed": 2871,
+    "mean_latency_s": 0.5153122525074749,
+    "p50_latency_s": 0.48851167445198485,
+    "p95_latency_s": 1.014965767717925,
+    "p99_latency_s": 1.3108351972943868,
+    "slo_violation_rate": 0.0,
+    "throughput_rps": 36.54004422499076,
+    "busy_time_s": [
+      39.92103582000033,
+      76.30126074999967,
+      30.768714660000143
+    ],
+    "utilization": [
+      0.508086525381488,
+      0.9711081303474536,
+      0.39160229690788106
+    ],
+    "mean_batch_size": [
+      1.2306043720531505,
+      6.408482142857143,
+      3.1308615049073065
+    ]
+  },
+  "algorithms": {
+    "ppo": {
+      "mean_latency_s_by_seed": [
+        0.5402064967355263,
+        0.5369239274866843,
+        0.7532246375631889,
+        6.781370263385536,
+        1.5828136723717077
+      ],
+      "slo_violation_rate_by_seed": [
+        0.0,
+        0.0,
+        0.0,
+        0.901428073841867,
+        0.23406478578892373
+      ],
+      "mean_over_seeds_s": 2.0389077995085287,
+      "median_over_seeds_s": 0.7532246375631889,
+      "failed_seeds": 2,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 2.95664529532791,
+            "low": 0.1277350226060733,
+            "high": 7.866549326288626,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 22.70985719261581,
+            "low": 0.0,
+            "high": 57.68230767653604,
+            "verdict": "inconclusive"
+          }
+        },
+        "verdict": "rl_worse"
+      },
+      "best_seed_by_dev": {
+        "seed": 2,
+        "mean_latency_s": 0.5369239274866843,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.041938989174133724,
+            "low": 0.028405632292623075,
+            "high": 0.05344130260700568,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "rl_worse"
+      }
+    },
+    "dqn": {
+      "mean_latency_s_by_seed": [
+        6.162239212809155,
+        6.070862071331794,
+        5.571338250617421,
+        3.5893259995428672,
+        5.729714087232358
+      ],
+      "slo_violation_rate_by_seed": [
+        0.9613375130616509,
+        0.6415882967607106,
+        0.776732845698363,
+        0.7345872518286312,
+        1.0
+      ],
+      "mean_over_seeds_s": 5.42469592430672,
+      "median_over_seeds_s": 5.729714087232358,
+      "failed_seeds": 5,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 9.527007455985203,
+            "low": 7.055497606546567,
+            "high": 12.615835283560415,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 82.28491814698712,
+            "low": 63.06812937813245,
+            "high": 95.99318253595405,
+            "verdict": "rl_worse"
+          }
+        },
+        "verdict": "rl_worse"
+      },
+      "best_seed_by_dev": {
+        "seed": 4,
+        "mean_latency_s": 3.5893259995428672,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 5.965341852590242,
+            "low": 4.864657226411436,
+            "high": 7.275959419604947,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 73.45872518286312,
+            "low": 54.719133572299704,
+            "high": 90.00696378830084,
+            "verdict": "rl_worse"
+          }
+        },
+        "verdict": "rl_worse"
+      }
+    }
+  }
+}

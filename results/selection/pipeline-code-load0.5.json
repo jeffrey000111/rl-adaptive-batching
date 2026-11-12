@@ -1,0 +1,60 @@
+{
+  "condition": "pipeline-code-load0.5",
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline_mean_latency_s": {
+    "train": 3.1417745117917812,
+    "dev": 1.428967837166161
+  },
+  "algorithms": {
+    "ppo": {
+      "dev_mean_latency_s_by_seed": [
+        1.5571687136328558,
+        2.204664815962031,
+        1.6104123575759695,
+        1.929897984445417,
+        2.540946045051582
+      ],
+      "selected_checkpoint_steps_by_seed": [
+        120000,
+        90000,
+        150000,
+        240000,
+        30000
+      ],
+      "mean_latency_s": {
+        "train": 4.886442637688563,
+        "dev": 1.968617983333571
+      },
+      "ratio_to_strongest_baseline": {
+        "train": 1.5553129670346018,
+        "dev": 1.3776503096372066
+      },
+      "possible_overfitting": false
+    },
+    "dqn": {
+      "dev_mean_latency_s_by_seed": [
+        3.5676184293501914,
+        4.4448438884220725,
+        2.8101823594162636,
+        3.521787499401238,
+        2.5594658278353126
+      ],
+      "selected_checkpoint_steps_by_seed": [
+        240000,
+        30000,
+        30000,
+        180000,
+        30000
+      ],
+      "mean_latency_s": {
+        "train": 8.003113361913952,
+        "dev": 3.380779600885016
+      },
+      "ratio_to_strongest_baseline": {
+        "train": 2.5473226458093925,
+        "dev": 2.3658892194449703
+      },
+      "possible_overfitting": false
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "condition": "pipeline-conv-load0.7",
+  "evaluated_on": "test",
+  "exploratory": true,
+  "requests": 2871,
+  "realised_load": 0.48858184764991885,
+  "failure_ratio": 2.0,
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline": {
+    "requests": 2871,
+    "completed": 2871,
+    "mean_latency_s": 0.1191014210032122,
+    "p50_latency_s": 0.10635155917796624,
+    "p95_latency_s": 0.23250209930997556,
+    "p99_latency_s": 0.30529646107704805,
+    "slo_violation_rate": 0.0,
+    "throughput_rps": 19.842536651329034,
+    "busy_time_s": [
+      43.304654400000835,
+      99.74336799999698,
+      39.62730196000013
+    ],
+    "utilization": [
+      0.2992943894479811,
+      0.6893630913503795,
+      0.27387885459233213
+    ],
+    "mean_batch_size": [
+      1.0,
+      1.3730272596843616,
+      1.2681095406360423
+    ]
+  },
+  "algorithms": {
+    "ppo": {
+      "mean_latency_s_by_seed": [
+        0.796417876239683,
+        0.1192896147902475,
+        1.8172822147806296,
+        0.11992696508593088,
+        0.12003805056536995
+      ],
+      "slo_violation_rate_by_seed": [
+        0.0,
+        0.0,
+        0.03622431208638105,
+        0.0,
+        0.0
+      ],
+      "mean_over_seeds_s": 0.5945909442923721,
+      "median_over_seeds_s": 0.12003805056536995,
+      "failed_seeds": 2,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 3.9923077263396873,
+            "low": 0.004811895867853654,
+            "high": 9.47765250100062,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.724486241727621,
+            "low": 0.0,
+            "high": 2.519333046061994,
+            "verdict": "inconclusive"
+          }
+        },
+        "verdict": "rl_worse"
+      },
+      "best_seed_by_dev": {
+        "seed": 4,
+        "mean_latency_s": 0.11992696508593088,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.006931437725637425,
+            "low": 0.005398963413190792,
+            "high": 0.008560841957267402,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "rl_worse"
+      }
+    },
+    "dqn": {
+      "mean_latency_s_by_seed": [
+        0.12726943637487512,
+        1.1346901759133832,
+        0.1205295847170448,
+        0.11997926490512885,
+        0.1313352187841601
+      ],
+      "slo_violation_rate_by_seed": [
+        0.0,
+        0.0041797283176593526,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_over_seeds_s": 0.32676073613891843,
+      "median_over_seeds_s": 0.12726943637487512,
+      "failed_seeds": 1,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 1.74355027325917,
+            "low": 0.020189437436473102,
+            "high": 5.211940441997031,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.08359456635318704,
+            "low": 0.0,
+            "high": 0.36211699164345407,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "rl_worse"
+      },
+      "best_seed_by_dev": {
+        "seed": 4,
+        "mean_latency_s": 0.11997926490512885,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.0073705577525642295,
+            "low": 0.0027180701849701012,
+            "high": 0.011539315039084395,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "rl_worse"
+      }
+    }
+  },
+  "registered_test_load": 0.48858184764991885
+}

@@ -1,0 +1,141 @@
+{
+  "condition": "single-conv-load0.7",
+  "evaluated_on": "test",
+  "exploratory": true,
+  "requests": 2871,
+  "realised_load": 0.48858184764991885,
+  "failure_ratio": 2.0,
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline": {
+    "requests": 2871,
+    "completed": 2871,
+    "mean_latency_s": 0.03354132501460113,
+    "p50_latency_s": 0.029838288576002014,
+    "p95_latency_s": 0.07012700384872428,
+    "p99_latency_s": 0.09581256395434079,
+    "slo_violation_rate": 0.0,
+    "throughput_rps": 56.89106680224616,
+    "busy_time_s": [
+      37.30812812000003
+    ],
+    "utilization": [
+      0.7392891707215883
+    ],
+    "mean_batch_size": [
+      1.4976525821596245
+    ]
+  },
+  "algorithms": {
+    "ppo": {
+      "mean_latency_s_by_seed": [
+        0.03354132501460113,
+        0.03354132501460113,
+        0.03354132501460113,
+        0.03354132501460113,
+        0.03354132501460113
+      ],
+      "slo_violation_rate_by_seed": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_over_seeds_s": 0.03354132501460113,
+      "median_over_seeds_s": 0.03354132501460113,
+      "failed_seeds": 0,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.0,
+            "low": -2.2254299268490956e-16,
+            "high": 4.1693575568548537e-16,
+            "verdict": "equivalent"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "no_difference"
+      },
+      "best_seed_by_dev": {
+        "seed": 3,
+        "mean_latency_s": 0.03354132501460113,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "no_difference"
+      }
+    },
+    "dqn": {
+      "mean_latency_s_by_seed": [
+        0.035184085003664815,
+        0.035324662513486954,
+        0.03354132501460113,
+        0.033840421797844536,
+        0.03506399723561759
+      ],
+      "slo_violation_rate_by_seed": [
+        0.00034831069313827936,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_over_seeds_s": 0.034590898313043,
+      "median_over_seeds_s": 0.03506399723561759,
+      "failed_seeds": 0,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.03129194502557593,
+            "low": 0.006826560774517966,
+            "high": 0.07150519885515019,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.006966213862765588,
+            "low": 0.0,
+            "high": 0.041782729805013935,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "rl_worse"
+      },
+      "best_seed_by_dev": {
+        "seed": 5,
+        "mean_latency_s": 0.03506399723561759,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.04539690129574821,
+            "low": 0.02586318573568616,
+            "high": 0.06821287660794811,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "rl_worse"
+      }
+    }
+  },
+  "registered_test_load": 0.48858184764991885
+}
