@@ -1,10 +1,10 @@
 # Pre-registration of the Phase 2 comparison
 
-Status: **draft, awaiting the owner's approval.** Once approved, the commit
-that marks it approved is the reference point: no policy is evaluated on a
-test split before that commit, and nothing above the "Deviations" section is
-edited afterwards. Changes after approval are appended to "Deviations" with
-a date and a reason.
+Status: **approved by the repository owner on 2026-11-11.** The commit that
+introduced this line is the reference point: no policy was evaluated on a
+test split before it, and nothing above the "Deviations" section is edited
+after it. Later changes are appended to "Deviations" with a date and a
+reason.
 
 ## 1. Question
 
@@ -111,15 +111,46 @@ the experimental method, not the algorithms.
 - **Observation:** which stage is deciding; its queue length; how long its
   oldest request has waited; queue length and remaining busy time of every
   stage; recent external arrival rate over a short and a long window.
-- **Reward:** minus the request-seconds accumulated since the previous
-  decision. The undiscounted return of an episode is exactly minus the sum
-  of its requests' latencies.
+- **Reward (main experiments): latency only.** Let N(u) be the number of
+  requests in the system at time u (arrived, not yet completed), t_k the
+  time of the k-th decision, and tau the unbatched processing time of one
+  request through the whole pipeline (the sum over stages of s_i(1) at the
+  reference length). The reward for decision k is
+
+      r_k = -(1 / tau) * integral from t_k to t_{k+1} of N(u) du
+
+  The integral of N over an episode equals the sum of the latencies of its
+  requests, so the undiscounted return is -(1 / tau) * (sum of latencies).
+  This is the same quantity, mean latency, that selects the baselines on
+  dev. The main experiments contain no SLO term and no other shaping.
+- **Reward (ablation only):** r'_k = r_k - lambda * V_k, where V_k is the
+  number of requests that completed in (t_k, t_{k+1}] with latency above the
+  primary SLO, and lambda is 10 or 100 (Section 11).
 - **One policy per condition**, shared by all stages of the pipeline.
-- **Episodes:** each episode is a window of 512 consecutive requests whose
-  first request is drawn uniformly at random from the (time-scaled) train
-  split. The system starts empty; the episode ends when all 512 requests
-  have completed. Known bias: backlog carried over from before the window is
-  not represented.
+- **Episodes:** each episode plays 512 consecutive requests whose first
+  request is drawn uniformly at random from the (time-scaled) train split,
+  and ends when every request of the episode has completed.
+- **Random backlog at the start of an episode.** Evaluation runs a whole
+  split continuously, and under overload a backlog builds up and drains
+  over a long time; 512-request episodes that start from an empty system
+  would rarely show such states. Two fixes were considered: (a) much longer
+  episodes that cover the build-up and drain, or (b) starting episodes from
+  a random backlog. **(b) is chosen.** With probability 0.5 an episode
+  starts with B extra requests already queued at the first stage at time
+  zero, B drawn log-uniformly from 1 to B_max. The extra requests are the B
+  requests that precede the window in the trace, with their own token
+  counts. B_max is the largest number of requests simultaneously in the
+  system when `GreedyBatch(32)` is simulated over the condition's train
+  split, so it is set from train data only. Reasons: on the train split the
+  overloaded stretch of the conversation trace spans thousands of requests,
+  so an episode long enough to contain it would leave only a handful of
+  distinct episodes, which gives few independent starts and makes
+  memorising the arrival sequence easier; random backlogs expose the policy
+  to the whole range of backlog sizes while keeping many distinct episodes.
+  Known limitations: a backlog appears only at the first stage (backlogs at
+  later stages arise only as the policy pushes it through), the backlogged
+  requests start with zero waiting time, and queue-length features are
+  clipped at 128 requests, so larger backlogs look alike to the policy.
 - **Budget:** 300,000 decisions per run; a checkpoint every 30,000.
 - **Seeds:** 1-5 for every (condition, algorithm).
 - **Fixed settings:** discount 0.999, two hidden layers of 64 units, CPU.
@@ -226,8 +257,13 @@ condition, five seeds each:
 1. This document is committed and approved.
 2. Baseline search and all training and model selection run on train and
    dev only. Their outputs are committed.
-3. A single script evaluates the frozen policies on test once and writes the
-   results with the commit hash it ran from.
+3. Test evaluation is run by one script, once per group of conditions, in
+   three groups, each only after every policy of that group is frozen:
+   the six primary conditions; the ten secondary conditions; the ablations.
+   The script writes the commit hash it ran from and refuses to overwrite an
+   existing test result. Hyper-parameters, grids and every other shared
+   setting are fixed before the first group's test results exist and are
+   not changed afterwards.
 4. `REPORT.md` is generated from those files.
 
 If a run fails or a policy turns out badly on dev, it is still evaluated on
