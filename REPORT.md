@@ -292,13 +292,46 @@ nothing is retrained or re-selected.
 RL tuning plus training took 21 times as long as the rule search (wall-clock seconds per process, measured with up to six processes in parallel, on one laptop CPU).
 <!-- END GENERATED: report-posthoc-cost -->
 
+### Post-hoc check of the processing-time model on a real CPU
+
+Added after all test evaluations (pre-registration, Deviation 4). It does
+not change any result above; it tests whether the formula's shape, and in
+particular the linear extrapolation beyond batch size 8, holds on real
+hardware.
+
+<!-- BEGIN GENERATED: report-real-latency -->
+Model `bert-base-uncased` (encoder only) with PyTorch 2.14.1 and transformers 5.20.2 on a Darwin arm64 laptop CPU, 4 intra-op threads, 5 warm-up runs per configuration, then 20 rounds with the configuration order shuffled every round; the median per configuration is reported.
+
+| Batch | Length | Measured median (ms) | Fit on all points: error | Fit on batch <= 8: error |
+|---|---|---|---|---|
+| 1 | 128 | 40.1 | -13.6% | -5.9% |
+| 1 | 384 | 100 | -7.9% | -3.3% |
+| 2 | 128 | 64.8 | -2.1% | +3.9% |
+| 2 | 384 | 195 | -8.6% | -5.0% |
+| 4 | 128 | 119 | +1.7% | +6.3% |
+| 4 | 384 | 373 | -5.9% | -2.7% |
+| 8 | 128 | 232 | +2.0% | +5.8% |
+| 8 | 384 | 716 | -2.7% | +0.3% |
+| 16 | 128 | 449 | +3.9% | +7.2% (extrapolated) |
+| 16 | 384 | 1389 | -0.1% | +2.8% (extrapolated) |
+| 32 | 128 | 863 | +7.5% | +10.7% (extrapolated) |
+| 32 | 384 | 2787 | -0.6% | +2.2% (extrapolated) |
+
+- **Fit on all 12 points:** fixed 5.8 ms, 0.2251 ms per token; R^2 0.9991; largest error 13.6%.
+- **Fit on batch <= 8, extrapolated to larger batches:** largest error 6.3% inside the fitted range and 10.7% on the extrapolated points.
+- **Linearity in batch size alone** (a straight line per sequence length, fitted on batch <= 8): largest extrapolation error 3.2%. The weaker part of the model is the product `batch x length`: the per-call fixed cost itself grows with length (fitted intercepts 10.8 ms at length 128, 17.6 ms at length 384).
+- **Batching gain on this CPU** (throughput at the largest batch over batch 1): 1.49 at length 128, 1.15 at length 384. Batching helps far less on this CPU than on the T4 data.
+
+This measures the shape of the formula on a CPU. It does not measure, and does not replace, the T4 parameters the simulator uses.
+<!-- END GENERATED: report-real-latency -->
+
 ## Limitations
 
 <!-- BEGIN GENERATED: report-limitations -->
 - **One hour of one day.** The traces cover 0.97 h (conversation) and 0.95 h (code) of a single day. Nothing here speaks to daily cycles, other days or other services.
 - **The test split is light.** Its arrival rate is below the train split's, and the load scaling is fixed on train, so the realised test load on the conversation trace is 0.35 at nominal 0.5, 0.49 at nominal 0.7, 0.63 at nominal 0.9. The registered test never puts the system into overload; the stress test in the exploratory section is the only evidence at realised loads of 0.7 and 0.9.
 - **The code trace's test split has 751 requests** (realised load 0.10 at nominal 0.3, 0.17 at nominal 0.5, 0.24 at nominal 0.7, 0.31 at nominal 0.9). Its P99 rests on a handful of requests and its intervals are wide.
-- **Processing-time model.** Parameters are fitted to NVIDIA's published BERT measurements on a T4 from 2020 (TensorFlow 20.06 container), batch sizes 1 to 8. Batch sizes above 8 (up to 32) are a linear extrapolation that has not been checked against a real server.
+- **Processing-time model.** Parameters are fitted to NVIDIA's published BERT measurements on a T4 from 2020 (TensorFlow 20.06 container), batch sizes 1 to 8. Batch sizes above 8 (up to 32) are a linear extrapolation. A post-hoc CPU measurement (section above) supports linearity in batch size up to 32 (extrapolation error at most 3.2%) but shows the `batch x length` form extrapolating with an error of up to 10.7%; it was not done on a T4, so the T4 parameters above batch size 8 remain unchecked.
 - **What the simulator leaves out.** No GPU memory limit, no step-like slowdowns at large batches, no random variation of processing time, one model instance per stage, and an illustrative pipeline rather than a measured one.
 - **Narrow RL coverage.** Only DQN and PPO from Stable-Baselines3, 300,000 decisions per run, hyper-parameters tuned on one condition, one observation and action design. A different algorithm, a larger budget or a better state design might do better; this study cannot rule that out.
 - **Dev was used more than planned.** Two tuning rounds and a set of diagnostic runs looked at dev (pre-registration, Deviation 1).

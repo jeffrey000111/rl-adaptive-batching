@@ -152,7 +152,7 @@ table above with `make legacy-repro`.
 | 0 | Archive old code, packaging, lint, tests, CI | done |
 | 1 | Discrete-event simulator replaying the Azure trace timestamps, with train / dev / test splits | done |
 | 2 | Tuned heuristic baselines vs. DQN / PPO, multiple seeds, paired bootstrap confidence intervals, ablations | done |
-| 3 | Real batching inference service (FastAPI, CPU model), trace replay load test, simulator-vs-real comparison | not started |
+| 3 | Reduced to a post-hoc CPU measurement of the processing-time model (see REPORT.md); the real serving system and ranking check were not done | partly done |
 
 Design decisions and their reasons are recorded in
 [docs/decisions.md](docs/decisions.md).

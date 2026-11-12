@@ -1,10 +1,10 @@
 PY ?= .venv/bin/python
 
-.PHONY: setup lint test docs legacy-repro sweep baselines train figures check
+.PHONY: setup lint test docs legacy-repro sweep baselines train figures cpu-latency check
 
 setup:  ## create .venv (Python 3.10+) and install the package with dev extras
 	python3.10 -m venv .venv
-	$(PY) -m pip install -e ".[dev,legacy,plots,rl]"
+	$(PY) -m pip install -e ".[dev,legacy,plots,rl,measure]"
 
 lint:
 	$(PY) -m ruff check .
@@ -49,5 +49,10 @@ figures:  ## figures that are drawn from results/ (no simulation)
 	$(PY) scripts/plot_summary.py
 	$(PY) scripts/plot_learning_curves.py --group primary
 	$(PY) scripts/plot_learning_curves.py --group secondary
+
+cpu-latency:  ## post-hoc: time bert-base-uncased on this CPU and fit the model (minutes)
+	$(PY) scripts/measure_cpu_latency.py
+	$(PY) scripts/fit_cpu_latency.py
+	$(PY) scripts/render_docs.py
 
 check: lint test

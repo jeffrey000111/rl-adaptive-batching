@@ -376,3 +376,19 @@ verdict, and the registered tables are reported unchanged next to it.
    against the summed training time of hyper-parameter tuning plus the five
    seeds of both algorithms, all measured on the same machine while up to six
    processes ran in parallel.
+
+### Deviation 4 (2026-11-12): post-hoc CPU measurement of the processing-time model
+
+**Made after every test evaluation of the study** (primary, secondary and
+ablations). Requested by the repository owner. Exploratory; it changes no
+registered result.
+
+`bert-base-uncased` is timed on the local CPU at batch sizes 1, 2, 4, 8, 16,
+32 and sequence lengths 128 and 384 (fixed thread count, warm-up, median of
+repeated shuffled rounds). The two-parameter model is fitted to all points,
+and separately to batch sizes up to 8 only, whose predictions for 16 and 32
+are compared with the measurements. This tests the shape of the formula and
+its extrapolation above batch size 8; it does not measure the T4 parameters
+the simulator uses. Scripts: `scripts/measure_cpu_latency.py`,
+`scripts/fit_cpu_latency.py`; results: `results/real_latency/`.
+

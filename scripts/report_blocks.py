@@ -433,6 +433,12 @@ def limitations() -> str:
     loads = ", ".join(f"{realised:.2f} at nominal {nominal}" for nominal, realised in conv.items())
     code_loads = ", ".join(f"{s['load']:.2f} at nominal {n}" for n, s in code.items())
     code_requests = next(iter(code.values()))["requests"]
+    cpu = read("results/real_latency/fit.json")
+    cpu_small = cpu["small_batch_fit"]["max_abs_rel_error_extrapolated"]
+    cpu_linear = max(
+        abs(e) for info in cpu["per_length_linear_in_batch"].values()
+        for e in info["extrapolation_rel_error_by_batch"].values()
+    )
     return (
         f"- **One hour of one day.** The traces cover {hours['conv']:.2f} h (conversation) and "
         f"{hours['code']:.2f} h (code) of a single day. Nothing here speaks to daily cycles, "
@@ -446,7 +452,11 @@ def limitations() -> str:
         f"- **Processing-time model.** Parameters are fitted to NVIDIA's published BERT "
         f"measurements on a T4 from 2020 (TensorFlow 20.06 container), batch sizes 1 to "
         f"{MEASURED_MAX_BATCH}. Batch sizes above {MEASURED_MAX_BATCH} (up to {MAX_BATCH}) are "
-        f"a linear extrapolation that has not been checked against a real server.\n"
+        f"a linear extrapolation. A post-hoc CPU measurement (section above) supports linearity "
+        f"in batch size up to {MAX_BATCH} (extrapolation error at most "
+        f"{100 * cpu_linear:.1f}%) but shows the `batch x length` form extrapolating with an "
+        f"error of up to {100 * cpu_small:.1f}%; it was not done on a T4, so the T4 parameters "
+        f"above batch size {MEASURED_MAX_BATCH} remain unchecked.\n"
         f"- **What the simulator leaves out.** No GPU memory limit, no step-like slowdowns at "
         f"large batches, no random variation of processing time, one model instance per "
         f"stage, and an illustrative pipeline rather than a measured one.\n"
@@ -459,7 +469,66 @@ def limitations() -> str:
     )
 
 
+def real_latency() -> str:
+    """Post-hoc CPU check of the processing-time model's shape."""
+    raw = read("results/real_latency/cpu_bert_base.json")
+    fit = read("results/real_latency/fit.json")
+    env = raw["environment"]
+    method = raw["method"]
+    cut = fit["measured_max_batch_for_extrapolation"]
+    rows = [
+        [str(r["batch_size"]), str(r["seq_len"]), ms(r["measured_s"]),
+         f"{100 * r['full_fit_rel_error']:+.1f}%",
+         f"{100 * r['small_batch_fit_rel_error']:+.1f}%" + (" (extrapolated)" if r["extrapolated"]
+                                                            else "")]
+        for r in fit["points"]
+    ]
+    per_length = fit["per_length_linear_in_batch"]
+    worst_linear = max(
+        abs(e) for info in per_length.values()
+        for e in info["extrapolation_rel_error_by_batch"].values()
+    )
+    gains = []
+    for length in sorted({r["seq_len"] for r in fit["points"]}):
+        by_batch = {r["batch_size"]: r["measured_s"] for r in fit["points"]
+                    if r["seq_len"] == length}
+        largest = max(by_batch)
+        gains.append(f"{largest * by_batch[1] / by_batch[largest]:.2f} at length {length}")
+    small = fit["small_batch_fit"]
+    full = fit["full_fit"]
+    return (
+        f"Model `{raw['model']}` (encoder only) with PyTorch {env['torch']} and transformers "
+        f"{env['transformers']} on a {env['system']} {env['machine']} laptop CPU, "
+        f"{env['intra_op_threads']} intra-op threads, {method['warmup_per_config']} warm-up "
+        f"runs per configuration, then {method['rounds']} rounds with the configuration order "
+        f"{method['order']}; the median per configuration is reported.\n\n"
+        + table(
+            ["Batch", "Length", "Measured median (ms)", "Fit on all points: error",
+             f"Fit on batch <= {cut}: error"],
+            rows,
+        )
+        + f"\n- **Fit on all {full['n_points']} points:** fixed {ms(full['fixed_s'])} ms, "
+        f"{1e3 * full['per_token_s']:.4f} ms per token; R^2 {full['r_squared']:.4f}; largest "
+        f"error {100 * full['max_abs_rel_error']:.1f}%.\n"
+        f"- **Fit on batch <= {cut}, extrapolated to larger batches:** largest error "
+        f"{100 * small['max_abs_rel_error_inside']:.1f}% inside the fitted range and "
+        f"{100 * small['max_abs_rel_error_extrapolated']:.1f}% on the extrapolated points.\n"
+        f"- **Linearity in batch size alone** (a straight line per sequence length, fitted on "
+        f"batch <= {cut}): largest extrapolation error {100 * worst_linear:.1f}%. The weaker "
+        f"part of the model is the product `batch x length`: the per-call fixed cost itself "
+        f"grows with length (fitted intercepts "
+        + ", ".join(f"{ms(info['fixed_s'])} ms at length {length}"
+                    for length, info in per_length.items())
+        + ").\n"
+        f"- **Batching gain on this CPU** (throughput at the largest batch over batch 1): "
+        f"{', '.join(gains)}. Batching helps far less on this CPU than on the T4 data.\n\n"
+        f"This measures the shape of the formula on a CPU. It does not measure, and does not "
+        f"replace, the T4 parameters the simulator uses.\n"
+    )
+
+
 RENDERERS: dict[str, Callable[[], str]] = {
+    "report-real-latency": real_latency,
     "report-conclusion": conclusion,
     "report-setup": setup,
     "report-primary-comparison": primary_comparison,

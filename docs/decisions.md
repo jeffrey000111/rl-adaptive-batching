@@ -328,3 +328,21 @@ below one weights cost by decision count rather than by time; the discount
 is kept close to one (0.999). "Wait" is overridden by a full dispatch once
 the oldest request has waited a whole SLO, so a policy cannot stall an
 episode; this slightly limits the policy space.
+
+## D17. Post-hoc CPU check instead of the full Phase 3
+
+**Decision.** Phase 3 is reduced to a measurement of `bert-base-uncased` on
+the local CPU, used only to test the shape of the processing-time model and
+its linear extrapolation above batch size 8. The real serving system and the
+simulator-versus-real ranking check are not done.
+
+**Why.** The extrapolation above batch size 8 was the model assumption with
+no data behind it. A CPU measurement can test the *form* of the model at
+batch sizes up to 32 cheaply; it cannot supply T4 parameters, so the
+simulator's constants are not refitted to it.
+
+**What it showed** (generated numbers in REPORT.md): processing time is close
+to linear in batch size up to 32 at each sequence length, while the product
+form `batch x length` fits less well because the per-call fixed cost grows
+with sequence length. On this CPU batching gives little throughput gain.
+
