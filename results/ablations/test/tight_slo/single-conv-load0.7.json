@@ -1,0 +1,46 @@
+{
+  "variant": "tight_slo",
+  "condition": "single-conv-load0.7",
+  "commit": "80e39d5dda82fbfb0ea638c92617b9bca79dd612",
+  "algorithm": "ppo",
+  "slo_s": 0.15964160000000002,
+  "strongest_baseline": {
+    "config": [
+      {
+        "family": "greedy",
+        "cap": 16
+      }
+    ],
+    "mean_latency_s": 0.03354132501460113,
+    "slo_violation_rate": 0.0
+  },
+  "mean_latency_s_by_seed": [
+    0.03354132501460113,
+    0.03354132501460113,
+    0.03354132501460113,
+    0.03354132501460113,
+    0.03354132501460113
+  ],
+  "slo_violation_rate_by_seed": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "intervals": {
+    "mean_latency_relative_difference": {
+      "estimate": 0.0,
+      "low": -2.2254299268490956e-16,
+      "high": 4.1693575568548537e-16,
+      "verdict": "equivalent"
+    },
+    "slo_violation_difference_points": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "verdict": "equivalent"
+    }
+  },
+  "verdict": "no_difference"
+}

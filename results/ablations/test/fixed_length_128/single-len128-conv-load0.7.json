@@ -1,0 +1,47 @@
+{
+  "variant": "fixed_length_128",
+  "condition": "single-len128-conv-load0.7",
+  "commit": "80e39d5dda82fbfb0ea638c92617b9bca79dd612",
+  "algorithm": "ppo",
+  "slo_s": 0.19332607999999998,
+  "strongest_baseline": {
+    "config": [
+      {
+        "family": "threshold",
+        "k": 2,
+        "wait_mult": 0.5
+      }
+    ],
+    "mean_latency_s": 0.025620349175315204,
+    "slo_violation_rate": 0.0
+  },
+  "mean_latency_s_by_seed": [
+    0.025591404380140657,
+    0.025591404380140657,
+    0.025591404380140657,
+    0.025608333966784157,
+    0.025591404380140657
+  ],
+  "slo_violation_rate_by_seed": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "intervals": {
+    "mean_latency_relative_difference": {
+      "estimate": -0.0009976006833844655,
+      "low": -0.012654533542275102,
+      "high": 0.010707732670168703,
+      "verdict": "equivalent"
+    },
+    "slo_violation_difference_points": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "verdict": "equivalent"
+    }
+  },
+  "verdict": "no_difference"
+}

@@ -1,0 +1,55 @@
+{
+  "variant": "fixed_length_128",
+  "condition": "pipeline-len128-conv-load0.7",
+  "commit": "80e39d5dda82fbfb0ea638c92617b9bca79dd612",
+  "algorithm": "ppo",
+  "slo_s": 0.9338801599999998,
+  "strongest_baseline": {
+    "config": [
+      {
+        "family": "greedy",
+        "cap": 4
+      },
+      {
+        "family": "threshold",
+        "k": 2,
+        "wait_mult": 1
+      },
+      {
+        "family": "greedy",
+        "cap": 8
+      }
+    ],
+    "mean_latency_s": 0.09157865192345721,
+    "slo_violation_rate": 0.0
+  },
+  "mean_latency_s_by_seed": [
+    0.09614337030520059,
+    0.14780880995290585,
+    0.09025014218577287,
+    0.8381120313892936,
+    0.09025530624010933
+  ],
+  "slo_violation_rate_by_seed": [
+    0.0006966213862765587,
+    0.0,
+    0.0,
+    0.34796238244514105,
+    0.0
+  ],
+  "intervals": {
+    "mean_latency_relative_difference": {
+      "estimate": 1.757344934774878,
+      "low": -0.0018064277799150583,
+      "high": 4.988411467115022,
+      "verdict": "inconclusive"
+    },
+    "slo_violation_difference_points": {
+      "estimate": 6.973180076628352,
+      "low": 0.0,
+      "high": 21.0868844839043,
+      "verdict": "inconclusive"
+    }
+  },
+  "verdict": "no_difference"
+}
