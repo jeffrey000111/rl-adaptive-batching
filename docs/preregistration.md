@@ -271,4 +271,76 @@ test and reported. No setting is changed after test results exist.
 
 ## Deviations
 
-None yet.
+### Deviation 1 (2026-11-11): the reward is expressed in a different unit
+
+**Made before any test evaluation.** At the time of this entry no policy had
+been simulated on any test split.
+
+**What changes.** The main-experiment reward becomes
+
+    r_k = -(1 / U) * integral from t_k to t_{k+1} of N(u) du,
+    U = 32 * (sum over stages of s_i(32) at the reference length)
+
+instead of dividing by tau (Section 7). U is a positive constant per
+scenario, so this is the registered reward multiplied by the constant
+tau / U: it still contains latency only, the undiscounted return is still
+proportional to minus the sum of latencies, and the ranking of policies by
+undiscounted return is unchanged. The ablation reward keeps its registered
+meaning in the same unit: r'_k = -(1 / U) * (integral + lambda * tau * V_k).
+
+**Why.** With the registered unit the tuning stage (Section 7, all eight
+configurations, 300,000 decisions, seed 100, pipeline / conv / load 0.7)
+produced policies that choose "wait" almost always: dev mean latency
+6.6-8.9 s against 0.23 s for the strongest rule and 0.24 s for the constant
+action "dispatch at most 32". Per-step rewards reached about -500 and
+episode returns were between about -3,000 and -63,000, a scale the value
+networks did not fit. Reporting those policies would compare the rules with
+a learner that was never given a usable training signal.
+
+**Evidence** (train and dev only; `results/rl/diagnostics/`,
+`results/rl/tuning_registered_reward/`). Selected PPO checkpoint: 31,987 of
+31,987 dev decisions were "wait". With the reward multiplied by tau / U and
+nothing else changed, 150,000 decisions, seed 100: DQN reached 235 ms and
+PPO 551 ms on the pipeline condition (strongest rule 229.7 ms); PPO reached
+71 ms on single / conv / load 0.7 (strongest rule 70.8 ms).
+
+**Consequences.**
+- The tuning stage is re-run with the same grid and the same seed under the
+  new unit; the earlier selection is discarded because it was made among
+  collapsed runs.
+- While diagnosing, three other changes were tried on dev: discount 1.0,
+  `VecNormalize` reward normalisation, and a different PPO learning rate
+  with scaling. **None of them is adopted.** Everything else in Section 7
+  stays as registered.
+- Dev has now been looked at more than the protocol planned (eight collapsed
+  tuning runs and eight diagnostic runs on two conditions). Test has not.
+
+### Deviation 2 (2026-11-11): training-sufficiency check with one fixed escalation
+
+**Made before any test evaluation and before the tuning stage is re-run.**
+Requested by the repository owner.
+
+**Check.** After re-tuning, on the primary comparison's condition (pipeline,
+conv, load 0.7), take the algorithm whose selected tuning configuration has
+the lower dev mean latency (the one that would count as "best RL" there).
+If that dev mean latency exceeds 1.5 times the dev mean latency of the
+untuned rule "never wait, cap 32 at all three stages", training is judged
+**not sufficient within the registered budget**. The other algorithm's
+value is reported next to it but does not trigger anything.
+
+**Escalation, allowed once.** If the check fails, the training budget goes
+from 300,000 to 1,000,000 decisions for every run of the study. Nothing
+else changes (same grids, seeds, checkpoint interval, selection rules). The
+tuning stage is repeated at the new budget and the check is evaluated again.
+There is no second escalation.
+
+**If the check still fails after the escalation,** all runs are carried out
+and reported as they are, and the report states the outcome as "within this
+training budget the learned policies did not reach a competitive policy",
+kept separate from the statement "learned policies are worse than rules".
+
+**Scope.** The check uses the dev split only.
+
+**Why.** Deviation 1 showed that a learner can fail for reasons that have
+nothing to do with the question. A threshold and a single remedy fixed in
+advance keep that from turning into open-ended tuning on dev.

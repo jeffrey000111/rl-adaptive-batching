@@ -10,9 +10,10 @@ Actions (``Discrete(1 + len(BATCH_SIZES))``):
     1..6     dispatch a batch of at most 1, 2, 4, 8, 16, 32 queued requests
 
 Reward: minus the request-seconds accumulated in the system since the
-previous decision, in units of the pipeline's single-request processing
-time. Summed over an episode this is exactly minus the total latency of the
-episode's requests, so the return and the reported metric cannot disagree.
+previous decision, divided by a constant per scenario (``reward_unit_s``) so
+that rewards are of order one. Summed over an episode this is minus the
+total latency of the episode's requests in that unit, so the return and the
+reported metric cannot disagree.
 
 ``observe`` and ``to_decision`` are shared by the training environment and
 by :class:`LearnedPolicy`, which plugs a trained model into the same
@@ -43,6 +44,18 @@ _RATE_WINDOWS = (20.0, 200.0)
 def single_request_time_s(scenario: Scenario) -> float:
     """Processing time of one request through the whole pipeline, unbatched."""
     return sum(m.uniform_batch_time_s(1, m.reference_length()) for m in scenario.stages)
+
+
+def reward_unit_s(scenario: Scenario) -> float:
+    """Request-seconds per unit of reward: a full batch held for a full batch time.
+
+    Dividing by the single-request time instead gave per-step rewards in the
+    hundreds, which the value networks did not fit (pre-registration,
+    Deviation 1). The choice of unit does not change which policy is best.
+    """
+    return MAX_BATCH * sum(
+        m.uniform_batch_time_s(MAX_BATCH, m.reference_length()) for m in scenario.stages
+    )
 
 
 def observation_size(scenario: Scenario, include_arrival_rate: bool = True) -> int:
@@ -131,7 +144,9 @@ class BatchingEnv(gym.Env[NDArray[np.float32], np.int64]):
         self._include_arrival_rate = include_arrival_rate
         self._slo_penalty = slo_penalty
         self._backlog_max = backlog_max
-        self._time_unit_s = single_request_time_s(scenario)
+        self._unit_s = reward_unit_s(scenario)
+        # One SLO miss costs ``slo_penalty`` single-request processing times.
+        self._penalty_s = slo_penalty * single_request_time_s(scenario)
         self.action_space = gym.spaces.Discrete(NUM_ACTIONS)
         self.observation_space = gym.spaces.Box(
             0.0, _CLIP, (observation_size(scenario, include_arrival_rate),), np.float32
@@ -174,10 +189,11 @@ class BatchingEnv(gym.Env[NDArray[np.float32], np.int64]):
         engine.apply(to_decision(int(action), view, self._scenario))
         self._view = engine.next_decision()
 
-        reward = -(engine.request_seconds - self._charged_seconds) / self._time_unit_s
+        cost_s = engine.request_seconds - self._charged_seconds
         self._charged_seconds = engine.request_seconds
         if self._slo_penalty:
-            reward -= self._slo_penalty * self._new_slo_violations(engine)
+            cost_s += self._penalty_s * self._new_slo_violations(engine)
+        reward = -cost_s / self._unit_s
 
         terminated = self._view is None
         observation = (

@@ -13,6 +13,7 @@ from adaptive_batching.rl_env import (  # noqa: E402
     BatchingEnv,
     LearnedPolicy,
     observation_size,
+    reward_unit_s,
     single_request_time_s,
 )
 from adaptive_batching.scenarios import MAX_BATCH, PIPELINE_3STAGE, SINGLE_STAGE  # noqa: E402
@@ -59,7 +60,7 @@ def test_return_equals_minus_total_latency(scenario: object) -> None:
     total, _ = run_episode(env, Constant(NUM_ACTIONS - 1))
     latency = env.result().latency_s
     assert not np.isnan(latency).any()
-    assert total == pytest.approx(-latency.sum() / single_request_time_s(scenario), rel=1e-9)  # type: ignore[arg-type]
+    assert total == pytest.approx(-latency.sum() / reward_unit_s(scenario), rel=1e-9)  # type: ignore[arg-type]
 
 
 def test_largest_dispatch_action_matches_the_greedy_rule() -> None:
@@ -127,7 +128,8 @@ def test_slo_penalty_charges_one_unit_per_late_request() -> None:
         with_penalty = run_episode(penalised, policy)[0]
         late = int((penalised.result().latency_s > SINGLE_STAGE.slo_s).sum())
         assert (late > 0) == expect_late
-        assert with_penalty == pytest.approx(run_episode(plain, policy)[0] - late)
+        per_miss = single_request_time_s(SINGLE_STAGE) / reward_unit_s(SINGLE_STAGE)
+        assert with_penalty == pytest.approx(run_episode(plain, policy)[0] - late * per_miss)
 
 
 def test_backlog_start_queues_extra_requests_at_time_zero() -> None:
@@ -151,9 +153,21 @@ def test_backlog_start_queues_extra_requests_at_time_zero() -> None:
             break
     latency = env.result().latency_s
     assert len(latency) == 50 + max(backlogs)
-    assert total == pytest.approx(-latency.sum() / single_request_time_s(SINGLE_STAGE))
+    assert total == pytest.approx(-latency.sum() / reward_unit_s(SINGLE_STAGE))
 
 
 def test_backlog_needs_windowed_episodes() -> None:
     with pytest.raises(ValueError):
         BatchingEnv(make_trace(), SINGLE_STAGE, episode_requests=None, backlog_max=10)
+
+
+def test_rewards_are_of_order_one_for_a_sensible_policy() -> None:
+    env = BatchingEnv(make_trace(rate=30.0), PIPELINE_3STAGE, episode_requests=None)
+    env.reset(seed=0)
+    rewards = []
+    while True:
+        _, reward, terminated, _, _ = env.step(NUM_ACTIONS - 1)
+        rewards.append(reward)
+        if terminated:
+            break
+    assert -5.0 < min(rewards) <= max(rewards) <= 0.0

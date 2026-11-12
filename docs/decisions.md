@@ -315,6 +315,14 @@ hand-weighted reward, as in the original project, can be maximised without
 improving the metric. (3) Sharing `observe` / `to_decision` between training
 and evaluation removes the chance that the two paths differ.
 
+**Reward unit.** The integral is divided by a constant per scenario (a
+full batch of 32 held for the time a full batch takes at every stage), so
+rewards are of order one. The first choice, dividing by the single-request
+processing time, gave per-step rewards down to about -500 and both
+algorithms collapsed to "always wait" (pre-registration, Deviation 1;
+`results/rl/diagnostics/`). The unit is a positive constant, so it changes
+how well the value network can fit, not which policy is best.
+
 **Trade-offs.** Decisions are unevenly spaced in time, so a discount factor
 below one weights cost by decision count rather than by time; the discount
 is kept close to one (0.999). "Wait" is overridden by a full dispatch once
