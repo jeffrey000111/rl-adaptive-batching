@@ -10,7 +10,14 @@ import numpy as np
 
 from adaptive_batching.engine import Policy, SimulationResult, simulate
 from adaptive_batching.load import offered_load, time_scale_for_load
-from adaptive_batching.scenarios import LOADS, MAX_BATCH, SCENARIOS, Scenario
+from adaptive_batching.scenarios import (
+    ABLATION_SCENARIOS,
+    ALL_SCENARIOS,
+    LOADS,
+    MAX_BATCH,
+    SCENARIOS,
+    Scenario,
+)
 from adaptive_batching.traces import Trace, load_trace
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
@@ -26,7 +33,7 @@ class Condition:
 
     @property
     def scenario(self) -> Scenario:
-        return SCENARIOS[self.scenario_name]
+        return ALL_SCENARIOS[self.scenario_name]
 
     @property
     def id(self) -> str:
@@ -42,8 +49,17 @@ SECONDARY: tuple[Condition, ...] = tuple(
     + [Condition(s, "code", load) for s in SCENARIOS for load in LOADS]
 )
 PRIMARY_COMPARISON = Condition("pipeline", "conv", 0.7)
-GROUPS: dict[str, tuple[Condition, ...]] = {"primary": PRIMARY, "secondary": SECONDARY}
-BY_ID: dict[str, Condition] = {c.id: c for c in PRIMARY + SECONDARY}
+# Ablations run at conv, load 0.7, in both scenarios (pre-registration, Section 11).
+ABLATION_BASE: tuple[Condition, ...] = tuple(Condition(s, "conv", 0.7) for s in SCENARIOS)
+ABLATION_LEN128: tuple[Condition, ...] = tuple(
+    Condition(s, "conv", 0.7) for s in ABLATION_SCENARIOS
+)
+GROUPS: dict[str, tuple[Condition, ...]] = {
+    "primary": PRIMARY,
+    "secondary": SECONDARY,
+    "ablation_len128": ABLATION_LEN128,
+}
+BY_ID: dict[str, Condition] = {c.id: c for c in PRIMARY + SECONDARY + ABLATION_LEN128}
 
 
 @cache

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from adaptive_batching.service_time import (
     BATCH_SIZES,
@@ -70,3 +70,19 @@ PIPELINE_3STAGE = Scenario(
 )
 
 SCENARIOS: dict[str, Scenario] = {s.name: s for s in (SINGLE_STAGE, PIPELINE_3STAGE)}
+
+
+def with_fixed_length(scenario: Scenario, length: int) -> Scenario:
+    """Ablation variant in which every request has the same sequence length."""
+    return Scenario(
+        name=f"{scenario.name}-len{length}",
+        description=f"{scenario.description}, every request {length} tokens",
+        stages=tuple(replace(model, fixed_length=length) for model in scenario.stages),
+    )
+
+
+# Ablation: shorter, uniform sequences, where batching helps more (decision D7).
+ABLATION_SCENARIOS: dict[str, Scenario] = {
+    s.name: s for s in (with_fixed_length(base, 128) for base in SCENARIOS.values())
+}
+ALL_SCENARIOS: dict[str, Scenario] = {**SCENARIOS, **ABLATION_SCENARIOS}
