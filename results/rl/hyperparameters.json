@@ -1,0 +1,20 @@
+{
+  "ppo": {
+    "hyperparameters": {
+      "learning_rate": 0.001,
+      "ent_coef": 0.0
+    },
+    "dev_mean_latency_s": 7.731951715458102,
+    "tuned_on": "pipeline-conv-load0.7",
+    "tuning_seed": 100
+  },
+  "dqn": {
+    "hyperparameters": {
+      "learning_rate": 0.0001,
+      "exploration_fraction": 0.1
+    },
+    "dev_mean_latency_s": 6.6416394884699255,
+    "tuned_on": "pipeline-conv-load0.7",
+    "tuning_seed": 100
+  }
+}
