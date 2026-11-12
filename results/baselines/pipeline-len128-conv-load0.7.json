@@ -1,0 +1,199 @@
+{
+  "condition": "pipeline-len128-conv-load0.7",
+  "selection_split": "dev",
+  "splits": {
+    "train": {
+      "requests": 12340,
+      "load": 0.7,
+      "peak_load": 1.0070997694013775
+    },
+    "dev": {
+      "requests": 4155,
+      "load": 0.7070907617504045,
+      "peak_load": 0.9236713861373579
+    }
+  },
+  "strongest": {
+    "config": [
+      {
+        "family": "greedy",
+        "cap": 4
+      },
+      {
+        "family": "threshold",
+        "k": 2,
+        "wait_mult": 1
+      },
+      {
+        "family": "greedy",
+        "cap": 8
+      }
+    ],
+    "dev_mean_latency_s": 0.15317828417397808,
+    "dev_slo_violation_rate": 0.0
+  },
+  "best_shared_parameters": {
+    "config": [
+      {
+        "family": "downstream",
+        "k": 1,
+        "wait_mult": 0.5,
+        "hold_at": 4
+      },
+      {
+        "family": "downstream",
+        "k": 1,
+        "wait_mult": 0.5,
+        "hold_at": 4
+      },
+      {
+        "family": "downstream",
+        "k": 1,
+        "wait_mult": 0.5,
+        "hold_at": 4
+      }
+    ],
+    "dev_mean_latency_s": 0.15516451910682375,
+    "dev_slo_violation_rate": 0.0
+  },
+  "best_by_family": {
+    "greedy": {
+      "config": [
+        {
+          "family": "greedy",
+          "cap": 32
+        },
+        {
+          "family": "greedy",
+          "cap": 32
+        },
+        {
+          "family": "greedy",
+          "cap": 32
+        }
+      ],
+      "dev_mean_latency_s": 0.15523280872973005,
+      "dev_slo_violation_rate": 0.0
+    },
+    "full": {
+      "config": [
+        {
+          "family": "full",
+          "batch": 32,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "full",
+          "batch": 32,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "full",
+          "batch": 32,
+          "wait_mult": 0.5
+        }
+      ],
+      "dev_mean_latency_s": 0.16372941208518554,
+      "dev_slo_violation_rate": 0.0
+    },
+    "threshold": {
+      "config": [
+        {
+          "family": "threshold",
+          "k": 1,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "threshold",
+          "k": 1,
+          "wait_mult": 0.5
+        },
+        {
+          "family": "threshold",
+          "k": 1,
+          "wait_mult": 0.5
+        }
+      ],
+      "dev_mean_latency_s": 0.15523280872973005,
+      "dev_slo_violation_rate": 0.0
+    },
+    "downstream": {
+      "config": [
+        {
+          "family": "downstream",
+          "k": 1,
+          "wait_mult": 0.5,
+          "hold_at": 4
+        },
+        {
+          "family": "downstream",
+          "k": 1,
+          "wait_mult": 0.5,
+          "hold_at": 4
+        },
+        {
+          "family": "downstream",
+          "k": 1,
+          "wait_mult": 0.5,
+          "hold_at": 4
+        }
+      ],
+      "dev_mean_latency_s": 0.15516451910682375,
+      "dev_slo_violation_rate": 0.0
+    }
+  },
+  "configurations_evaluated": 2514,
+  "strongest_metrics": {
+    "train": {
+      "requests": 12340,
+      "completed": 12340,
+      "mean_latency_s": 0.17649756520260626,
+      "p50_latency_s": 0.1405521392023683,
+      "p95_latency_s": 0.44696816911177883,
+      "p99_latency_s": 0.5855379444823723,
+      "slo_violation_rate": 0.0,
+      "throughput_rps": 81.80024434147315,
+      "busy_time_s": [
+        102.78375679998638,
+        143.42676999999549,
+        57.96359679999896
+      ],
+      "utilization": [
+        0.6813400664970372,
+        0.9507572796683875,
+        0.3842330940964786
+      ],
+      "mean_batch_size": [
+        1.3730944697896963,
+        4.619992512167728,
+        3.978078658929723
+      ]
+    },
+    "dev": {
+      "requests": 4155,
+      "completed": 4155,
+      "mean_latency_s": 0.15317828417397808,
+      "p50_latency_s": 0.12812126236855903,
+      "p95_latency_s": 0.3412532252325687,
+      "p99_latency_s": 0.4255078889395698,
+      "slo_violation_rate": 0.0,
+      "throughput_rps": 82.68690548278124,
+      "busy_time_s": [
+        34.791001600000776,
+        48.668940000000624,
+        19.33052159999998
+      ],
+      "utilization": [
+        0.6923610736343092,
+        0.9685400822448141,
+        0.38468857099207204
+      ],
+      "mean_batch_size": [
+        1.362295081967213,
+        4.506507592190889,
+        4.073529411764706
+      ]
+    }
+  },
+  "search_seconds": 104.90420198440552
+}
