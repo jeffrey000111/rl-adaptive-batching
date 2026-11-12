@@ -128,3 +128,32 @@ def test_slo_penalty_charges_one_unit_per_late_request() -> None:
         late = int((penalised.result().latency_s > SINGLE_STAGE.slo_s).sum())
         assert (late > 0) == expect_late
         assert with_penalty == pytest.approx(run_episode(plain, policy)[0] - late)
+
+
+def test_backlog_start_queues_extra_requests_at_time_zero() -> None:
+    env = BatchingEnv(make_trace(), SINGLE_STAGE, episode_requests=50, backlog_max=100)
+    backlogs = []
+    for seed in range(40):
+        observation, info = env.reset(seed=seed)
+        backlogs.append(info["backlog"])
+        # Stage 0 sees the backlog plus the window's first request.
+        assert observation[1] == pytest.approx(min((info["backlog"] + 1) / MAX_BATCH, 4.0))
+        assert info["start_request"] >= info["backlog"]
+    assert 0 in backlogs and max(backlogs) > 10 and max(backlogs) <= 100
+    assert 0.25 < np.mean([b > 0 for b in backlogs]) < 0.75
+
+    env.reset(seed=int(np.argmax(backlogs)))
+    total = 0.0
+    while True:
+        _, reward, terminated, _, _ = env.step(NUM_ACTIONS - 1)
+        total += reward
+        if terminated:
+            break
+    latency = env.result().latency_s
+    assert len(latency) == 50 + max(backlogs)
+    assert total == pytest.approx(-latency.sum() / single_request_time_s(SINGLE_STAGE))
+
+
+def test_backlog_needs_windowed_episodes() -> None:
+    with pytest.raises(ValueError):
+        BatchingEnv(make_trace(), SINGLE_STAGE, episode_requests=None, backlog_max=10)

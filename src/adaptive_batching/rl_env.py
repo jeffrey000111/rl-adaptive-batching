@@ -95,8 +95,15 @@ class BatchingEnv(gym.Env[NDArray[np.float32], np.int64]):
 
     ``trace`` must already be scaled to the wanted load. With
     ``episode_requests`` set, each reset picks a uniformly random start
-    request and plays that many requests from an empty system; with ``None``
-    the whole trace is one episode.
+    request and plays that many requests; with ``None`` the whole trace is
+    one episode starting from an empty system.
+
+    Evaluation runs a whole split continuously, where overload leaves a
+    backlog that short episodes starting from an empty system would rarely
+    show. With ``backlog_max > 0``, half of the episodes therefore start with
+    a backlog: a number of extra requests, log-uniform between 1 and
+    ``backlog_max``, taken from the trace just before the window and all
+    queued at time zero.
     """
 
     metadata = {"render_modes": []}
@@ -108,8 +115,13 @@ class BatchingEnv(gym.Env[NDArray[np.float32], np.int64]):
         episode_requests: int | None = 512,
         include_arrival_rate: bool = True,
         slo_penalty: float = 0.0,
+        backlog_max: int = 0,
     ) -> None:
         super().__init__()
+        if backlog_max < 0 or (episode_requests is None and backlog_max):
+            raise ValueError("backlog_max needs episode_requests and must be >= 0")
+        if episode_requests is not None and episode_requests + backlog_max > len(trace):
+            raise ValueError("episode_requests + backlog_max exceeds the trace length")
         if episode_requests is not None and not 0 < episode_requests <= len(trace):
             raise ValueError("episode_requests must be between 1 and the trace length")
         self._arrivals = trace.relative_arrivals()
@@ -118,6 +130,7 @@ class BatchingEnv(gym.Env[NDArray[np.float32], np.int64]):
         self._episode_requests = episode_requests
         self._include_arrival_rate = include_arrival_rate
         self._slo_penalty = slo_penalty
+        self._backlog_max = backlog_max
         self._time_unit_s = single_request_time_s(scenario)
         self.action_space = gym.spaces.Discrete(NUM_ACTIONS)
         self.observation_space = gym.spaces.Box(
@@ -132,19 +145,25 @@ class BatchingEnv(gym.Env[NDArray[np.float32], np.int64]):
         self, *, seed: int | None = None, options: dict[str, Any] | None = None
     ) -> tuple[NDArray[np.float32], dict[str, Any]]:
         super().reset(seed=seed)
+        backlog = 0
         if self._episode_requests is None:
-            start, stop = 0, len(self._arrivals)
+            first, stop = 0, len(self._arrivals)
         else:
+            if self._backlog_max and self.np_random.random() < 0.5:
+                log_backlog = self.np_random.uniform(0.0, np.log(self._backlog_max))
+                backlog = int(round(float(np.exp(log_backlog))))
             last_start = len(self._arrivals) - self._episode_requests
-            start = int(self.np_random.integers(0, last_start + 1))
-            stop = start + self._episode_requests
-        arrivals = self._arrivals[start:stop] - self._arrivals[start]
-        self._engine = Engine(arrivals, self._tokens[start:stop], self._scenario.stages)
+            start = int(self.np_random.integers(backlog, last_start + 1))
+            first, stop = start - backlog, start + self._episode_requests
+        # Requests before the window's first regular request form the backlog:
+        # they are all present at time zero.
+        arrivals = np.maximum(self._arrivals[first:stop] - self._arrivals[first + backlog], 0.0)
+        self._engine = Engine(arrivals, self._tokens[first:stop], self._scenario.stages)
         self._charged_seconds = 0.0
         self._charged_completions = 0
         self._view = self._engine.next_decision()
         assert self._view is not None  # a non-empty episode always has a first decision
-        return self._observe(), {"start_request": start}
+        return self._observe(), {"start_request": first + backlog, "backlog": backlog}
 
     def step(
         self, action: np.int64 | int
