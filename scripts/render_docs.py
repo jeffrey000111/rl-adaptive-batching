@@ -24,6 +24,8 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+from report_blocks import RENDERERS as REPORT_RENDERERS
+
 ROOT = Path(__file__).resolve().parent.parent
 DOCUMENTS = ["README.md", "REPORT.md"]
 
@@ -86,6 +88,7 @@ def fixed_batch_sweep_table(scenario: str) -> str:
 
 
 RENDERERS: dict[str, Callable[[], str]] = {
+    **REPORT_RENDERERS,
     "legacy-fixed-batch": legacy_fixed_batch_table,
     "fixed-batch-sweep-single": lambda: fixed_batch_sweep_table("single"),
     "fixed-batch-sweep-pipeline": lambda: fixed_batch_sweep_table("pipeline"),

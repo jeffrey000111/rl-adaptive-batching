@@ -14,11 +14,18 @@ dispatch a batch and how large it should be.
 > encoder-type service (embedding, classification, re-ranking). It does not
 > represent the continuous, token-level batching used to serve generative LLMs.
 
-> **Status: rework in progress.** This repository started as a Spring 2026
-> reinforcement-learning course project at SJSU. Its headline result did not
-> hold up (see below), so the simulator and the experiments are being rebuilt.
-> The simulator exists; **no learned policy has been evaluated yet**, so the
-> research question is still open.
+## Result
+
+<!-- BEGIN GENERATED: report-conclusion -->
+**Single stage.** With one server the learned policy never beat the tuned rule: in 8 single-stage conditions the pre-registered verdict was "no difference" 6 times and "RL worse" 2 times, and on the conversation trace the best learned policy reproduced the rule "never wait" almost exactly (largest difference in mean latency 0.0%).
+
+**Pipeline.** In the three-stage pipeline the pre-registered primary comparison (conv, load 0.7, mean latency, PPO against the strongest rule) found the learned policy **worse**: +399.2% [+0.5, +947.8] on the test split. The cause is unstable training rather than a uniformly bad policy: 2 of 5 seeds failed (test mean latency above 2x the rule's), while the other 3 were within 0.8% of the rule. Over all 8 pipeline conditions the verdict was "RL worse" 7 times and "no difference" once. **In none of the 16 conditions was the learned policy better than the tuned rule.**
+
+**Scope and data limits.** Arrival times come from about 1 hour of one day of an LLM-service trace; the test split is lighter than its nominal load (realised load 0.63 at nominal 0.9 on the conversation trace) and the code trace's test split has only 751 requests; the processing-time model describes whole-batch inference of an encoder model and is a linear extrapolation above batch size 8. The result is for DQN and PPO with a budget of 300,000 decisions per run.
+<!-- END GENERATED: report-conclusion -->
+
+Full results, the pre-registered protocol and its deviations, exploratory
+analyses and limitations: **[REPORT.md](REPORT.md)**.
 
 ## Simulator sanity check: fixed batch sizes
 
@@ -136,7 +143,7 @@ table above with `make legacy-repro`.
 |---|---|---|
 | 0 | Archive old code, packaging, lint, tests, CI | done |
 | 1 | Discrete-event simulator replaying the Azure trace timestamps, with train / dev / test splits | done |
-| 2 | Tuned heuristic baselines vs. DQN / PPO, multiple seeds, paired bootstrap confidence intervals, ablations | not started |
+| 2 | Tuned heuristic baselines vs. DQN / PPO, multiple seeds, paired bootstrap confidence intervals, ablations | done |
 | 3 | Real batching inference service (FastAPI, CPU model), trace replay load test, simulator-vs-real comparison | not started |
 
 Design decisions and their reasons are recorded in
@@ -149,11 +156,13 @@ Requires Python 3.10+.
 ```bash
 make setup   # create .venv and install with dev extras
 make check   # ruff + pytest
-make sweep   # fixed-batch-size sweep on the train split + figure
-make docs    # regenerate generated blocks in README.md from results/
+make sweep      # fixed-batch-size sweep on the train split + figure
+make baselines  # rule grid search on dev
+make train      # RL tuning, training and dev selection (the longest step)
+make docs       # regenerate generated blocks in README.md and REPORT.md
 ```
 
-Every number in this README is written by `scripts/render_docs.py` from files
+Every number in this README and in REPORT.md is written by `scripts/render_docs.py` from files
 under `results/`; none is typed by hand.
 
 ## Data

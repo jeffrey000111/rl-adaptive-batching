@@ -36,6 +36,8 @@ def main() -> None:
     budget = next(iter(chosen.values()))["total_steps"]
 
     history = json.loads(OUT.read_text()) if OUT.exists() else []
+    # Re-running at the same budget replaces that entry instead of adding one.
+    history = [entry for entry in history if entry["training_budget"] != budget]
     passed = by_algorithm[best] <= THRESHOLD * reference
     history.append(
         {
