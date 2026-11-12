@@ -1,0 +1,364 @@
+{
+  "condition": "pipeline-conv-load0.9",
+  "commit": "a4ef0715da9785eb0464b8520664fbc8efd15105",
+  "working_tree_dirty": false,
+  "test_split": {
+    "requests": 2871,
+    "load": 0.6281766612641811,
+    "peak_load": 0.6946689871779573
+  },
+  "slo_s": 2.67435248,
+  "strongest_baseline": {
+    "config": [
+      {
+        "family": "downstream",
+        "k": 1,
+        "wait_mult": 4,
+        "hold_at": 16
+      },
+      {
+        "family": "downstream",
+        "k": 1,
+        "wait_mult": 1,
+        "hold_at": 2
+      },
+      {
+        "family": "greedy",
+        "cap": 4
+      }
+    ],
+    "metrics": {
+      "requests": 2871,
+      "completed": 2871,
+      "mean_latency_s": 0.16326462590954965,
+      "p50_latency_s": 0.14155032060921435,
+      "p95_latency_s": 0.3542018077960023,
+      "p99_latency_s": 0.4389812475794151,
+      "slo_violation_rate": 0.0,
+      "throughput_rps": 25.509175729691798,
+      "busy_time_s": [
+        41.924748660000525,
+        93.26036674999794,
+        35.921828600000005
+      ],
+      "utilization": [
+        0.3725063674646862,
+        0.8286294266949507,
+        0.31916971030625874
+      ],
+      "mean_batch_size": [
+        1.0846241027578392,
+        1.771128932757557,
+        1.6868390129259694
+      ],
+      "tight_slo_violation_rate": 0.0
+    }
+  },
+  "best_rl_algorithm": "ppo",
+  "algorithms": {
+    "ppo": {
+      "role": "best RL (pre-registered comparison)",
+      "metrics_by_seed": [
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 0.16199423329574306,
+          "p50_latency_s": 0.14269811101237906,
+          "p95_latency_s": 0.34750191684074494,
+          "p99_latency_s": 0.4349111092654519,
+          "slo_violation_rate": 0.0,
+          "throughput_rps": 25.509175729691798,
+          "busy_time_s": [
+            41.924748660000525,
+            93.26036674999794,
+            38.18278716000007
+          ],
+          "utilization": [
+            0.3725063674646862,
+            0.8286294266949507,
+            0.33925859544195797
+          ],
+          "mean_batch_size": [
+            1.0846241027578392,
+            1.771128932757557,
+            1.413589364844904
+          ],
+          "tight_slo_violation_rate": 0.0
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 0.16270335349052428,
+          "p50_latency_s": 0.13948088859829966,
+          "p95_latency_s": 0.3489873924268956,
+          "p99_latency_s": 0.43918239383565355,
+          "slo_violation_rate": 0.0,
+          "throughput_rps": 25.509175729691798,
+          "busy_time_s": [
+            43.25172672000082,
+            93.36653974999793,
+            43.304654400000835
+          ],
+          "utilization": [
+            0.3842967250132731,
+            0.8295727864005404,
+            0.38476699373151946
+          ],
+          "mean_batch_size": [
+            1.002794271742927,
+            1.771128932757557,
+            1.0
+          ],
+          "tight_slo_violation_rate": 0.0
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 0.17083770260326295,
+          "p50_latency_s": 0.14216569072443264,
+          "p95_latency_s": 0.3810643125491838,
+          "p99_latency_s": 0.6009165178149187,
+          "slo_violation_rate": 0.0,
+          "throughput_rps": 25.175291866379403,
+          "busy_time_s": [
+            41.924748660000525,
+            93.26036674999794,
+            43.304654400000835
+          ],
+          "utilization": [
+            0.3676307154093041,
+            0.8177836825136828,
+            0.3797308650967301
+          ],
+          "mean_batch_size": [
+            1.0846241027578392,
+            1.771128932757557,
+            1.0
+          ],
+          "tight_slo_violation_rate": 0.004876349703935911
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 2.5242240411648753,
+          "p50_latency_s": 2.6863139215959464,
+          "p95_latency_s": 3.7739700426099603,
+          "p99_latency_s": 4.1728912816637544,
+          "slo_violation_rate": 0.5078369905956113,
+          "throughput_rps": 25.07745621396166,
+          "busy_time_s": [
+            34.77207051999984,
+            80.18187399999952,
+            24.83579136000002
+          ],
+          "utilization": [
+            0.30372520931176705,
+            0.7003683157047645,
+            0.2169343331137192
+          ],
+          "mean_batch_size": [
+            1.836852207293666,
+            4.055084745762712,
+            25.18421052631579
+          ],
+          "tight_slo_violation_rate": 0.9296412399860676
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 0.16199423329574306,
+          "p50_latency_s": 0.14269811101237906,
+          "p95_latency_s": 0.34750191684074494,
+          "p99_latency_s": 0.4349111092654519,
+          "slo_violation_rate": 0.0,
+          "throughput_rps": 25.509175729691798,
+          "busy_time_s": [
+            41.924748660000525,
+            93.26036674999794,
+            38.18278716000007
+          ],
+          "utilization": [
+            0.3725063674646862,
+            0.8286294266949507,
+            0.33925859544195797
+          ],
+          "mean_batch_size": [
+            1.0846241027578392,
+            1.771128932757557,
+            1.413589364844904
+          ],
+          "tight_slo_violation_rate": 0.0
+        }
+      ],
+      "mean_latency_s": 0.6363507127700297,
+      "ratio_to_strongest_baseline": 3.897664354571056,
+      "intervals": {
+        "mean_latency_relative_difference": {
+          "estimate": 2.897664354571058,
+          "low": -0.007061393832151356,
+          "high": 8.878730189714407,
+          "verdict": "inconclusive"
+        },
+        "slo_violation_difference_points": {
+          "estimate": 10.156739811912226,
+          "low": 0.0,
+          "high": 31.455724442872626,
+          "verdict": "inconclusive"
+        }
+      },
+      "verdict": "no_difference"
+    },
+    "dqn": {
+      "role": "other algorithm (secondary)",
+      "metrics_by_seed": [
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 5.269725669352661,
+          "p50_latency_s": 5.57209571425264,
+          "p95_latency_s": 7.019565421617791,
+          "p99_latency_s": 7.459501923474816,
+          "slo_violation_rate": 0.9216300940438872,
+          "throughput_rps": 24.654012149969777,
+          "busy_time_s": [
+            37.6704361999999,
+            86.93594274999917,
+            31.890714739999666
+          ],
+          "utilization": [
+            0.3234856815637265,
+            0.7465412012635166,
+            0.27385373342778546
+          ],
+          "mean_batch_size": [
+            1.442713567839196,
+            2.324696356275304,
+            2.5452127659574466
+          ],
+          "tight_slo_violation_rate": 0.9784047370254266
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 0.5718642213579855,
+          "p50_latency_s": 0.6255614142113579,
+          "p95_latency_s": 0.9163950610501139,
+          "p99_latency_s": 1.0491484609460704,
+          "slo_violation_rate": 0.0,
+          "throughput_rps": 25.509175729691798,
+          "busy_time_s": [
+            38.76336848000012,
+            86.90214024999874,
+            37.242678199999936
+          ],
+          "utilization": [
+            0.3444171293734305,
+            0.7721358296494394,
+            0.33090561576041805
+          ],
+          "mean_batch_size": [
+            1.3365921787709498,
+            2.475,
+            1.50392875851231
+          ],
+          "tight_slo_violation_rate": 0.35318704284221525
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 0.8253553586816177,
+          "p50_latency_s": 0.25259795369072435,
+          "p95_latency_s": 2.4421110361050253,
+          "p99_latency_s": 3.0575876914389277,
+          "slo_violation_rate": 0.029258098223615466,
+          "throughput_rps": 25.509175729691798,
+          "busy_time_s": [
+            41.924748660000525,
+            95.12421274999755,
+            38.05188692000011
+          ],
+          "utilization": [
+            0.3725063674646862,
+            0.8451899196058087,
+            0.33809553127434466
+          ],
+          "mean_batch_size": [
+            1.0846241027578392,
+            1.6084033613445379,
+            1.403225806451613
+          ],
+          "tight_slo_violation_rate": 0.438871473354232
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 0.2121955554727223,
+          "p50_latency_s": 0.15670279952147226,
+          "p95_latency_s": 0.5902952469504434,
+          "p99_latency_s": 0.84161246456841,
+          "slo_violation_rate": 0.0,
+          "throughput_rps": 25.509175729691798,
+          "busy_time_s": [
+            41.94759666000053,
+            94.57560374999782,
+            37.18112122
+          ],
+          "utilization": [
+            0.3727093746562822,
+            0.8403154635320074,
+            0.3303586746875488
+          ],
+          "mean_batch_size": [
+            1.0833962264150943,
+            1.6740524781341108,
+            1.5150395778364116
+          ],
+          "tight_slo_violation_rate": 0.022640195053988156
+        },
+        {
+          "requests": 2871,
+          "completed": 2871,
+          "mean_latency_s": 5.6408719520113015,
+          "p50_latency_s": 5.477340872233128,
+          "p95_latency_s": 8.231008533107772,
+          "p99_latency_s": 8.728420941308109,
+          "slo_violation_rate": 0.9961685823754789,
+          "throughput_rps": 24.76045993539984,
+          "busy_time_s": [
+            35.51018943999979,
+            86.1580709999985,
+            33.89445335999958
+          ],
+          "utilization": [
+            0.3062516972927807,
+            0.7430558917125732,
+            0.29231705135929925
+          ],
+          "mean_batch_size": [
+            1.6888235294117646,
+            2.490026019080659,
+            1.97319587628866
+          ],
+          "tight_slo_violation_rate": 1.0
+        }
+      ],
+      "mean_latency_s": 2.504002551375258,
+      "ratio_to_strongest_baseline": 15.337079526109363,
+      "intervals": {
+        "mean_latency_relative_difference": {
+          "estimate": 14.337079526109363,
+          "low": 1.9388197597589074,
+          "high": 27.868300729108455,
+          "verdict": "rl_worse"
+        },
+        "slo_violation_difference_points": {
+          "estimate": 38.94113549285963,
+          "low": 0.3342618384401115,
+          "high": 79.49859776750786,
+          "verdict": "rl_worse"
+        }
+      },
+      "verdict": "rl_worse"
+    }
+  }
+}
