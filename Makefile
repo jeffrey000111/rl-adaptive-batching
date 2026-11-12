@@ -1,6 +1,6 @@
 PY ?= .venv/bin/python
 
-.PHONY: setup lint test docs legacy-repro sweep baselines train check
+.PHONY: setup lint test docs legacy-repro sweep baselines train figures check
 
 setup:  ## create .venv (Python 3.10+) and install the package with dev extras
 	python3.10 -m venv .venv
@@ -44,5 +44,10 @@ train:  ## RL tuning, sufficiency check, all training runs, dev selection (about
 #   scripts/evaluate_test.py --group primary|secondary
 #   scripts/run_ablations.py --stage test
 #   scripts/posthoc.py --group primary [--stress]; --group secondary
+
+figures:  ## figures that are drawn from results/ (no simulation)
+	$(PY) scripts/plot_summary.py
+	$(PY) scripts/plot_learning_curves.py --group primary
+	$(PY) scripts/plot_learning_curves.py --group secondary
 
 check: lint test

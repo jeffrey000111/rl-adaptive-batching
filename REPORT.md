@@ -339,6 +339,42 @@ data and several training seeds, the conclusion reverses: the learned
 policies did not beat the tuned rules in any condition, and were less
 stable. The old code and results are kept under [legacy/](legacy/).
 
+## Data and sources
+
+- **Arrival trace.** Azure LLM inference trace 2023, files
+  `AzureLLMInferenceTrace_code.csv` and `AzureLLMInferenceTrace_conv.csv`
+  ([dataset page](https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2023.md)),
+  released under CC-BY. Accompanying paper: P. Patel, E. Choukse, C. Zhang,
+  A. Shah, I. Goiri, S. Maleki, R. Bianchini, "Splitwise: Efficient
+  generative LLM inference using phase splitting", ISCA 2024
+  ([publication page](https://www.microsoft.com/en-us/research/publication/splitwise-efficient-generative-llm-inference-using-phase-splitting/)).
+  The dataset page gives 11 November 2023 as the collection date; the
+  timestamps in the files read 2023-11-16.
+- **Processing-time measurements.** NVIDIA DeepLearningExamples, TensorFlow
+  BERT README, "Inference performance: NVIDIA Tesla T4" table
+  ([README](https://github.com/NVIDIA/DeepLearningExamples/blob/master/TensorFlow/LanguageModeling/BERT/README.md));
+  transcribed rows in `data/public_measurements/`.
+- **Linear batch-latency model and the half-SLO rule.** H. Shen et al.,
+  "Nexus: A GPU Cluster Engine for Accelerating DNN-Based Video Analysis",
+  SOSP 2019 ([DOI](https://doi.org/10.1145/3341301.3359658),
+  [PDF](https://homes.cs.washington.edu/~arvind/papers/nexus.pdf)),
+  Equation 1 and Section 4.1.
+- **Linear batch-latency model, later use.** "Symphony: Optimized DNN Model
+  Serving using Deferred Batch Scheduling"
+  ([arXiv:2308.07470](https://arxiv.org/abs/2308.07470)), Section 2.1.
+- **Threshold-form batching rule (motivation only).** R. K. Deb and
+  R. F. Serfozo, "Optimal control of batch service queues", Advances in
+  Applied Probability 5(2), 1973 ([DOI](https://doi.org/10.2307/1426040)).
+  Only the abstract was checked; its assumptions were not verified against
+  the full text and no optimality is claimed here.
+- **Queueing with dynamic batching.** Y. Inoue, "Queueing Analysis of
+  GPU-Based Inference Servers with Dynamic Batching: A Closed-Form
+  Characterization" ([arXiv:1912.06322](https://arxiv.org/abs/1912.06322)).
+- **RL algorithms.** A. Raffin et al., "Stable-Baselines3: Reliable
+  Reinforcement Learning Implementations", JMLR 22(268), 2021
+  ([code](https://github.com/DLR-RM/stable-baselines3)). DQN and PPO are used
+  as implemented there.
+
 ## Reproducing
 
 ```bash
@@ -347,6 +383,7 @@ make check        # lint and tests
 make sweep        # fixed-batch sweep and figures
 make baselines    # rule grid search on dev
 make train        # RL tuning and training (the longest step)
+make figures      # summary figure and learning curves
 make docs         # regenerate every generated block from results/
 ```
 

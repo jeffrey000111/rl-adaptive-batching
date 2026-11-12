@@ -16,6 +16,14 @@ dispatch a batch and how large it should be.
 
 ## Result
 
+![RL mean latency divided by the strongest rule's, one point per training seed](results/posthoc/summary_ratio_by_seed.png)
+
+Each point is one training seed of the best learned policy (chosen on dev),
+evaluated on the test split. Most seeds sit at 1, i.e. they match the tuned
+rule; a few are far above it; none is clearly below. The per-seed view is a
+post-hoc, exploratory presentation; the pre-registered verdicts are in
+[REPORT.md](REPORT.md).
+
 <!-- BEGIN GENERATED: report-conclusion -->
 **Single stage.** With one server the learned policy never beat the tuned rule: in 8 single-stage conditions the pre-registered verdict was "no difference" 6 times and "RL worse" 2 times, and on the conversation trace the best learned policy reproduced the rule "never wait" almost exactly (largest difference in mean latency 0.0%).
 
@@ -159,6 +167,7 @@ make check   # ruff + pytest
 make sweep      # fixed-batch-size sweep on the train split + figure
 make baselines  # rule grid search on dev
 make train      # RL tuning, training and dev selection (the longest step)
+make figures    # summary figure and learning curves from results/
 make docs       # regenerate generated blocks in README.md and REPORT.md
 ```
 
@@ -168,8 +177,8 @@ under `results/`; none is typed by hand.
 ## Data
 
 `data/` contains two files from the
-[Azure LLM Inference Trace 2023](https://github.com/Azure/AzurePublicDataset)
-(code and conversation workloads): request timestamps with context and
+[Azure LLM Inference Trace 2023](https://github.com/Azure/AzurePublicDataset/blob/master/AzureLLMInferenceDataset2023.md)
+(code and conversation workloads; CC-BY; Patel et al., "Splitwise", ISCA 2024): request timestamps with context and
 generated token counts. Each covers roughly one hour of a single day, which
 limits how far any conclusion drawn from them can be generalized.
 
@@ -180,10 +189,15 @@ The RL algorithms are used as implemented in
 project's own work is the simulator, the state and reward design, the
 baselines, and the experimental method.
 
-## Team (original course project)
+## Authorship
+
+The original course project (CMPE 260, Spring 2026, SJSU) was a three-person
+team project:
 
 - Yumeng Ren — environment design and simulation
 - Haoran Jiang — PPO and SAC agent implementation
 - Brian Lam — DQN baseline, heuristic baselines, evaluation and reporting
 
-The rework on top of the course project is by Haoran Jiang.
+The rework in this repository (new simulator, baselines, experiments,
+pre-registration, report) was done independently by Haoran Jiang. The
+original team's code is preserved under [legacy/](legacy/).
