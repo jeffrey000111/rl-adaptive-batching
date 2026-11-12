@@ -7,6 +7,7 @@ import pytest
 from adaptive_batching.service_time import (
     BATCH_SIZES,
     BERT_BASE_T4_FP16,
+    BERT_LARGE_T4_FP16,
     ServiceTimeModel,
     fit_two_parameter,
     load_measurements,
@@ -56,10 +57,16 @@ def test_empty_batch_is_rejected() -> None:
         MODEL.batch_time_s([])
 
 
-def test_shipped_constants_match_a_refit_of_the_public_measurements() -> None:
-    fit = fit_two_parameter(load_measurements(MEASUREMENTS, "base"))
+@pytest.mark.parametrize(
+    "name, shipped, max_error",
+    [("base", BERT_BASE_T4_FP16, 0.08), ("large", BERT_LARGE_T4_FP16, 0.09)],
+)
+def test_shipped_constants_match_a_refit_of_the_public_measurements(
+    name: str, shipped: ServiceTimeModel, max_error: float
+) -> None:
+    fit = fit_two_parameter(load_measurements(MEASUREMENTS, name))
     assert fit.n_points == 8
-    assert BERT_BASE_T4_FP16.fixed_s == pytest.approx(fit.fixed_s, rel=1e-3)
-    assert BERT_BASE_T4_FP16.per_token_s == pytest.approx(fit.per_token_s, rel=1e-3)
-    # The model reproduces every published point to within 8%.
-    assert fit.max_rel_error < 0.08
+    assert shipped.fixed_s == pytest.approx(fit.fixed_s, rel=1e-3)
+    assert shipped.per_token_s == pytest.approx(fit.per_token_s, rel=1e-3)
+    # The model reproduces every published point to within max_error.
+    assert fit.max_rel_error < max_error

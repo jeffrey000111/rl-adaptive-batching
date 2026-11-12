@@ -49,31 +49,46 @@ def legacy_fixed_batch_table() -> str:
     return "\n".join(lines) + "\n"
 
 
-def fixed_batch_sweep_table() -> str:
-    """Best fixed batch size per trace and load on the train split."""
+def fixed_batch_sweep_table(scenario: str) -> str:
+    """Best fixed batch size per trace and load on the train split, with SLO violations."""
     data = json.loads((ROOT / "results/fixed_batch_sweep/train.json").read_text())
+
+    def cell_text(run: dict[str, float], size: str) -> str:
+        return (
+            f"b={size}: {1e3 * run['mean_latency_s']:.0f} ms, "
+            f"{100 * run['slo_violation_rate']:.1f}%"
+        )
 
     def best(runs: dict[str, dict[str, float]]) -> str:
         size = min(runs, key=lambda b: runs[b]["mean_latency_s"])
-        return f"b={size} ({1e3 * runs[size]['mean_latency_s']:.0f} ms)"
+        return cell_text(runs[size], size)
 
+    info = data["scenarios"][scenario]
     lines = [
+        f"Capacity {info['capacity_rps']:.1f} requests/s; SLO {1e3 * info['slo_s']:.0f} ms. "
+        "Each cell: batch size, mean latency, share of requests over the SLO.",
+        "",
         "| Trace | Nominal load | Load in busiest minute | No batching | "
-        "Best greedy cap | Best full-batch size |",
-        "|---|---|---|---|---|---|",
+        "Largest greedy cap | Best greedy cap | Best full-batch size |",
+        "|---|---|---|---|---|---|---|",
     ]
+    largest = str(max(data["batch_sizes"]))
     for cell in data["cells"]:
+        if cell["scenario"] != scenario:
+            continue
         greedy, full = cell["policies"]["greedy"], cell["policies"]["full"]
         lines.append(
             f"| {cell['trace']} | {cell['nominal_load']} | {cell['peak_load']:.2f} | "
-            f"{1e3 * greedy['1']['mean_latency_s']:.0f} ms | {best(greedy)} | {best(full)} |"
+            f"{cell_text(greedy['1'], '1')} | {cell_text(greedy[largest], largest)} | "
+            f"{best(greedy)} | {best(full)} |"
         )
     return "\n".join(lines) + "\n"
 
 
 RENDERERS: dict[str, Callable[[], str]] = {
     "legacy-fixed-batch": legacy_fixed_batch_table,
-    "fixed-batch-sweep": fixed_batch_sweep_table,
+    "fixed-batch-sweep-single": lambda: fixed_batch_sweep_table("single"),
+    "fixed-batch-sweep-pipeline": lambda: fixed_batch_sweep_table("pipeline"),
 }
 
 

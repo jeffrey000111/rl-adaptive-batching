@@ -113,6 +113,8 @@ def fit_two_parameter(rows: Sequence[tuple[int, int, float]]) -> FitReport:
 # Rounded output of fit_two_parameter on data/public_measurements/; a test
 # re-runs the fit and fails if these constants drift from the data.
 BERT_BASE_T4_FP16 = ServiceTimeModel(fixed_s=7.616e-3, per_token_s=2.174e-5)
+# BERT-large, same source and conditions.
+BERT_LARGE_T4_FP16 = ServiceTimeModel(fixed_s=16.59e-3, per_token_s=6.275e-5)
 
 # Batch sizes a policy may dispatch. The source measures 1-8; 16 and 32 are a
 # linear extrapolation of the fitted model.

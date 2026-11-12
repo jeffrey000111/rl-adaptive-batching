@@ -33,6 +33,12 @@ class Metrics:
         return asdict(self)
 
 
+def slo_violation_rate(result: SimulationResult, slo_s: float) -> float:
+    """Share of requests slower than ``slo_s``; a request that never completed counts."""
+    latency = result.latency_s
+    return float((np.isnan(latency) | (latency > slo_s)).mean())
+
+
 def summarize(result: SimulationResult, slo_s: float | None = None) -> Metrics:
     """Compute metrics over every request of a run that ran to completion."""
     latency = result.latency_s
@@ -50,10 +56,7 @@ def summarize(result: SimulationResult, slo_s: float | None = None) -> Metrics:
         busy[batch.stage] += batch.duration_s
         sizes[batch.stage].append(batch.size)
 
-    violation_rate = None
-    if slo_s is not None:
-        # A request that never completed has also missed its SLO.
-        violation_rate = float(((finished > slo_s).sum() + (~done).sum()) / len(latency))
+    violation_rate = None if slo_s is None else slo_violation_rate(result, slo_s)
 
     return Metrics(
         requests=len(latency),

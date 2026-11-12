@@ -14,11 +14,12 @@ from adaptive_batching.engine import Policy, simulate
 from adaptive_batching.load import offered_load, time_scale_for_load
 from adaptive_batching.metrics import summarize
 from adaptive_batching.policies import GreedyBatch, WaitForBatch
-from adaptive_batching.service_time import BATCH_SIZES, BERT_BASE_T4_FP16
+from adaptive_batching.scenarios import PIPELINE_3STAGE, SINGLE_STAGE
+from adaptive_batching.service_time import BATCH_SIZES
 from adaptive_batching.traces import Trace, load_trace
 
 DATA = Path(__file__).resolve().parent.parent / "data"
-STAGES = [BERT_BASE_T4_FP16]
+STAGES = SINGLE_STAGE.stages
 MAX_BATCH = BATCH_SIZES[-1]
 
 
@@ -59,3 +60,24 @@ def test_best_full_batch_size_grows_with_load(train: Trace) -> None:
         return min(BATCH_SIZES, key=lambda b: mean_latency(train, load, WaitForBatch(b, 1.0)))
 
     assert best_size(0.5) < best_size(0.7) < best_size(0.9)
+
+
+def test_pipeline_bottleneck_sets_capacity_and_no_batching_fails_there(train: Trace) -> None:
+    stages = PIPELINE_3STAGE.stages
+    scaled = train.time_scaled(time_scale_for_load(train, 0.7, stages, MAX_BATCH))
+    assert offered_load(scaled, stages, MAX_BATCH) == pytest.approx(0.7)
+
+    def run(policy: Policy) -> float:
+        result = simulate(scaled.relative_arrivals(), scaled.context_tokens, stages, policy)
+        return summarize(result).mean_latency_s
+
+    assert run(GreedyBatch(1)) > 5 * run(GreedyBatch(MAX_BATCH))
+
+
+def test_slo_definitions() -> None:
+    model = SINGLE_STAGE.stages[0]
+    assert SINGLE_STAGE.slo_s == pytest.approx(2 * model.uniform_batch_time_s(MAX_BATCH, 384))
+    assert SINGLE_STAGE.tight_slo_s == pytest.approx(10 * model.uniform_batch_time_s(1, 384))
+    # Under the tight SLO the largest batch alone already misses it.
+    assert model.uniform_batch_time_s(MAX_BATCH, 384) > SINGLE_STAGE.tight_slo_s
+    assert PIPELINE_3STAGE.slo_s > SINGLE_STAGE.slo_s

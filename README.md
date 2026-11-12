@@ -30,29 +30,58 @@ T4 (see [docs/decisions.md](docs/decisions.md), D7). The published
 measurements cover batch sizes 1-8; **batch sizes 16 and 32 are a linear
 extrapolation**.
 
-Mean latency of fixed-batch-size policies on the **train** split (simulated,
-one server), for two ways of using a fixed size b: "greedy cap" dispatches
-immediately with at most b requests; "full batch" waits until b requests are
-queued (at most one second).
+Fixed-batch-size policies on the **train** split (simulated), for two ways
+of using a fixed size b: "greedy cap" dispatches immediately with at most b
+requests; "full batch" waits until b requests are queued (at most one
+second; this value is not tuned). The SLO is twice the processing time of the
+largest batch, summed over stages (rule from Nexus, SOSP 2019, Section 4.1).
 
-<!-- BEGIN GENERATED: fixed-batch-sweep -->
-| Trace | Nominal load | Load in busiest minute | No batching | Best greedy cap | Best full-batch size |
-|---|---|---|---|---|---|
-| conv | 0.5 | 0.72 | 2026 ms | b=8 (37 ms) | b=2 (69 ms) |
-| conv | 0.7 | 1.01 | 13702 ms | b=32 (89 ms) | b=8 (201 ms) |
-| conv | 0.9 | 1.29 | 31352 ms | b=32 (1101 ms) | b=32 (1367 ms) |
-| code | 0.5 | 1.67 | 4235 ms | b=32 (1020 ms) | b=16 (1109 ms) |
-| code | 0.7 | 2.33 | 12648 ms | b=32 (1557 ms) | b=16 (1643 ms) |
-| code | 0.9 | 3.00 | 20060 ms | b=32 (2855 ms) | b=32 (2947 ms) |
-<!-- END GENERATED: fixed-batch-sweep -->
+**One server (BERT-base):**
 
-![Mean latency against batch size](results/fixed_batch_sweep/latency_vs_batch.png)
+<!-- BEGIN GENERATED: fixed-batch-sweep-single -->
+Capacity 116.5 requests/s; SLO 550 ms. Each cell: batch size, mean latency, share of requests over the SLO.
 
-What this shows: no batching is far from optimal at every load; waiting for
-a full batch gives a U-shaped curve whose best size grows with load; and a
-policy that never waits is not hurt by a large cap. Nominal load is computed
-from the mean arrival rate, so bursts push the busiest minute well above it.
-Reproduce with `make sweep`.
+| Trace | Nominal load | Load in busiest minute | No batching | Largest greedy cap | Best greedy cap | Best full-batch size |
+|---|---|---|---|---|---|---|
+| conv | 0.3 | 0.43 | b=1: 28 ms, 0.0% | b=32: 24 ms, 0.0% | b=4: 24 ms, 0.0% | b=1: 28 ms, 0.0% |
+| conv | 0.5 | 0.72 | b=1: 2026 ms, 40.8% | b=32: 37 ms, 0.0% | b=8: 37 ms, 0.0% | b=2: 69 ms, 0.0% |
+| conv | 0.7 | 1.01 | b=1: 13702 ms, 94.1% | b=32: 89 ms, 0.1% | b=32: 89 ms, 0.1% | b=8: 201 ms, 5.2% |
+| conv | 0.9 | 1.29 | b=1: 31352 ms, 98.4% | b=32: 1101 ms, 34.7% | b=32: 1101 ms, 34.7% | b=32: 1367 ms, 52.2% |
+| code | 0.3 | 1.00 | b=1: 1664 ms, 62.1% | b=32: 463 ms, 30.8% | b=32: 463 ms, 30.8% | b=8: 580 ms, 36.9% |
+| code | 0.5 | 1.67 | b=1: 4235 ms, 94.6% | b=32: 1020 ms, 56.4% | b=32: 1020 ms, 56.4% | b=16: 1109 ms, 60.4% |
+| code | 0.7 | 2.33 | b=1: 12648 ms, 96.9% | b=32: 1557 ms, 77.0% | b=32: 1557 ms, 77.0% | b=16: 1643 ms, 78.8% |
+| code | 0.9 | 3.00 | b=1: 20060 ms, 98.1% | b=32: 2855 ms, 94.2% | b=32: 2855 ms, 94.2% | b=32: 2947 ms, 95.6% |
+<!-- END GENERATED: fixed-batch-sweep-single -->
+
+![Single stage: mean latency against batch size](results/fixed_batch_sweep/latency_vs_batch_single.png)
+
+**Three-stage pipeline (BERT-base, BERT-large, BERT-base; every stage uses
+the same policy).** This pipeline is an illustrative configuration assembled
+from two published per-model profiles, not a measurement of a real system.
+
+<!-- BEGIN GENERATED: fixed-batch-sweep-pipeline -->
+Capacity 40.6 requests/s; SLO 2674 ms. Each cell: batch size, mean latency, share of requests over the SLO.
+
+| Trace | Nominal load | Load in busiest minute | No batching | Largest greedy cap | Best greedy cap | Best full-batch size |
+|---|---|---|---|---|---|---|
+| conv | 0.3 | 0.43 | b=1: 94 ms, 0.0% | b=32: 92 ms, 0.0% | b=2: 92 ms, 0.0% | b=1: 94 ms, 0.0% |
+| conv | 0.5 | 0.72 | b=1: 1735 ms, 25.4% | b=32: 132 ms, 0.0% | b=4: 131 ms, 0.0% | b=2: 236 ms, 0.0% |
+| conv | 0.7 | 1.01 | b=1: 16547 ms, 49.5% | b=32: 304 ms, 0.0% | b=16: 300 ms, 0.0% | b=8: 702 ms, 0.0% |
+| conv | 0.9 | 1.29 | b=1: 58983 ms, 94.7% | b=32: 3295 ms, 29.1% | b=32: 3295 ms, 29.1% | b=16: 4514 ms, 33.7% |
+| code | 0.3 | 1.00 | b=1: 3569 ms, 41.8% | b=32: 1486 ms, 15.9% | b=16: 1403 ms, 14.5% | b=8: 1760 ms, 20.7% |
+| code | 0.5 | 1.67 | b=1: 7088 ms, 74.3% | b=32: 3149 ms, 42.0% | b=16: 3035 ms, 39.2% | b=8: 3353 ms, 44.8% |
+| code | 0.7 | 2.33 | b=1: 24078 ms, 95.0% | b=32: 4725 ms, 66.5% | b=16: 4628 ms, 63.7% | b=16: 4943 ms, 68.4% |
+| code | 0.9 | 3.00 | b=1: 41231 ms, 97.4% | b=32: 8480 ms, 92.3% | b=32: 8480 ms, 92.3% | b=32: 9002 ms, 94.1% |
+<!-- END GENERATED: fixed-batch-sweep-pipeline -->
+
+![Pipeline: mean latency against batch size](results/fixed_batch_sweep/latency_vs_batch_pipeline.png)
+
+What this shows: no batching is far from optimal except at the lowest
+load; waiting for a full batch gives a U-shaped curve whose best size grows
+with load; with one server, a policy that never waits is not hurt by a large
+cap, while in the pipeline a cap below the largest is slightly better in
+several cells. Nominal load is computed from the mean arrival rate, so bursts push the
+busiest minute well above it. Reproduce with `make sweep`.
 
 ## What was wrong with the original result
 
@@ -106,7 +135,7 @@ table above with `make legacy-repro`.
 | Phase | Content | State |
 |---|---|---|
 | 0 | Archive old code, packaging, lint, tests, CI | done |
-| 1 | Discrete-event simulator replaying the Azure trace timestamps, with train / dev / test splits | in progress |
+| 1 | Discrete-event simulator replaying the Azure trace timestamps, with train / dev / test splits | done |
 | 2 | Tuned heuristic baselines vs. DQN / PPO, multiple seeds, paired bootstrap confidence intervals, ablations | not started |
 | 3 | Real batching inference service (FastAPI, CPU model), trace replay load test, simulator-vs-real comparison | not started |
 

@@ -194,7 +194,8 @@ keeps evaluation data out of the workload definition.
 (never wait; at most b per batch) and `WaitForBatch(b, max_wait)` (wait for b
 requests or until the oldest has waited `max_wait`).
 
-**Finding on the train split** (`results/fixed_batch_sweep/train.json`).
+**Finding on the train split, one server**
+(`results/fixed_batch_sweep/train.json`).
 Waiting for a full batch gives a U-shaped latency curve whose minimum moves
 to larger batches as load grows. Never waiting gives a curve that only
 falls and flattens: a larger cap is never clearly worse, because the cap is
@@ -204,6 +205,11 @@ simulator: at high load the largest batch is the best fixed choice in both
 families. What is clearly bad is no batching at high load, and waiting for
 the largest batch at low or moderate load. `tests/test_lessons.py` asserts
 exactly these, not the original expectation.
+
+**Pipeline.** With three stages and the same policy at every stage, the
+largest greedy cap is no longer always the best: a smaller cap is slightly
+better in several cells (see the generated README table). The differences
+are small and measured on train only; they are a lead, not a result.
 
 **Implication.** `GreedyBatch(32)` is a strong, parameter-free baseline for
 mean latency. A learned policy can only beat it by sometimes waiting on
@@ -226,3 +232,56 @@ an empty system at every block boundary, which would bias latency down.
 
 **Limits.** The code test split has 751 requests; its P99 rests on about 8
 requests and will be reported as unreliable.
+
+## D12. Load levels
+
+**Decision.** Nominal loads 0.3, 0.5, 0.7 and 0.9. Every result is reported
+next to the load of the busiest minute of the same data.
+
+**Why.** Nominal load is an average over a non-stationary trace. On the
+train split the busiest minute of the conversation trace reaches load 1.01
+at nominal 0.7, and the code trace is already at 1.00 at nominal 0.3. At 0.9
+the system spends much of the time draining backlog and latency is measured
+in seconds for every policy, so 0.3 was added to have a level where the
+system is not overloaded even at its peak (conversation trace).
+
+## D13. Latency SLO
+
+**Decision.** Primary SLO: twice the processing time of the largest batch
+at the reference length, summed over the stages (550 ms for one BERT-base
+server). Ablation ("tight") SLO: ten times the processing time of a single
+request, summed over the stages (160 ms for one server).
+
+**Source of the rule.** Nexus (Shen et al., SOSP 2019), Section 4.1: "the
+batch execution cost for a given task type cannot exceed half of the task's
+latency SLO; a task that missed being scheduled with a batch would be
+executed as part of the next batch, and thus its latency would be twice the
+batch execution cost." The linear batch latency model is Equation (1) in
+Section 2.2 of the same paper.
+
+**Why two.** Under the primary SLO every allowed batch size is feasible in
+principle, so the SLO does not decide the batch size by itself. Under the
+tight SLO the largest batch alone exceeds the SLO, so a policy has to hold
+batch sizes down, which is a different trade-off.
+
+**Extension to the pipeline** (sum of per-stage budgets) is this project's
+choice, not taken from a source.
+
+## D14. Three-stage pipeline
+
+**Decision.** `PIPELINE_3STAGE` is BERT-base, BERT-large, BERT-base, all T4
+FP16, loosely "encode, re-rank, classify". BERT-large parameters
+(`fixed = 16.59 ms`, `per_token = 0.06275 ms`) are fitted the same way from
+the same source as D7; the fit reproduces the eight published points to
+within 9% (worst point 8.4%).
+
+**This is an illustrative configuration, not a measurement of a real
+system.** Each stage's profile comes from a published single-model
+benchmark; no published system with this exact pipeline was measured. Every
+request passes through all three stages with the same token count. The
+middle stage is the bottleneck and sets the pipeline capacity.
+
+**Why this configuration.** A pipeline is where per-stage greedy rules can
+interact badly: a large batch released upstream arrives downstream all at
+once. Having a clear bottleneck in the middle makes that interaction
+visible.

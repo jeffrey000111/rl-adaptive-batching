@@ -27,16 +27,22 @@ SERIES = {
 
 def main() -> None:
     data = json.loads((ROOT / "results/fixed_batch_sweep/train.json").read_text())
+    for scenario, info in data["scenarios"].items():
+        plot_scenario(data, scenario, info["description"])
+
+
+def plot_scenario(data: dict, scenario: str, description: str) -> None:
+    all_cells = [c for c in data["cells"] if c["scenario"] == scenario]
     sizes = data["batch_sizes"]
     positions = list(range(len(sizes)))
     first_extrapolated = next(i for i, b in enumerate(sizes) if b > data["measured_max_batch"])
-    traces = sorted({c["trace"] for c in data["cells"]}, reverse=True)
-    loads = sorted({c["nominal_load"] for c in data["cells"]})
-    cells = {(c["trace"], c["nominal_load"]): c for c in data["cells"]}
+    traces = sorted({c["trace"] for c in all_cells}, reverse=True)
+    loads = sorted({c["nominal_load"] for c in all_cells})
+    cells = {(c["trace"], c["nominal_load"]): c for c in all_cells}
 
     plt.rcParams.update({"font.size": 10, "text.color": TEXT, "axes.labelcolor": MUTED,
                          "xtick.color": MUTED, "ytick.color": MUTED})
-    fig, axes = plt.subplots(len(traces), len(loads), figsize=(12, 7.2), sharey="row",
+    fig, axes = plt.subplots(len(traces), len(loads), figsize=(15, 7.2), sharey="row",
                              facecolor=SURFACE)
     for row, trace in enumerate(traces):
         for col, load in enumerate(loads):
@@ -58,7 +64,7 @@ def main() -> None:
             ax.tick_params(length=0)
             for spine in ax.spines.values():
                 spine.set_visible(False)
-            ax.set_title(f"{trace} trace · load {load} (busiest minute {cell['peak_load']:.2f})",
+            ax.set_title(f"{trace} · load {load} (busiest minute {cell['peak_load']:.2f})",
                          fontsize=10, loc="left", color=TEXT)
             if col == 0:
                 ax.set_ylabel("mean latency (ms, log scale)")
@@ -76,11 +82,12 @@ def main() -> None:
                               markeredgewidth=1.5, label="lowest point of each curve"))
     fig.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.01, 0.94), ncols=3,
                frameon=False, fontsize=10)
-    fig.suptitle("Mean latency of fixed-batch-size policies, train split, one BERT-base T4 server "
-                 "(simulated)", x=0.012, ha="left", fontsize=12, color=TEXT)
+    fig.suptitle(f"Mean latency of fixed-batch-size policies, train split, simulated: "
+                 f"{description}", x=0.012, ha="left", fontsize=12, color=TEXT)
     fig.tight_layout(rect=(0, 0, 1, 0.90))
-    out = ROOT / "results/fixed_batch_sweep/latency_vs_batch.png"
+    out = ROOT / f"results/fixed_batch_sweep/latency_vs_batch_{scenario}.png"
     fig.savefig(out, dpi=150, facecolor=SURFACE)
+    plt.close(fig)
     print(f"wrote {out.relative_to(ROOT)}")
 
 
