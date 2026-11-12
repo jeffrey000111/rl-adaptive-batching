@@ -1,0 +1,141 @@
+{
+  "condition": "single-code-load0.5",
+  "evaluated_on": "test",
+  "exploratory": true,
+  "requests": 751,
+  "realised_load": 0.1727495782855391,
+  "failure_ratio": 2.0,
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline": {
+    "requests": 751,
+    "completed": 751,
+    "mean_latency_s": 0.3094030779214073,
+    "p50_latency_s": 0.18344168678182626,
+    "p95_latency_s": 1.0883099869221908,
+    "p99_latency_s": 1.2127062495442118,
+    "slo_violation_rate": 0.17576564580559254,
+    "throughput_rps": 22.802829100372048,
+    "busy_time_s": [
+      7.212132480000006
+    ],
+    "utilization": [
+      0.21898405378253336
+    ],
+    "mean_batch_size": [
+      5.646616541353383
+    ]
+  },
+  "algorithms": {
+    "ppo": {
+      "mean_latency_s_by_seed": [
+        0.49421849787174477,
+        0.3258683229813195,
+        0.31007394109051506,
+        0.3534829918494997,
+        0.3112120468694572
+      ],
+      "slo_violation_rate_by_seed": [
+        0.2969374167776298,
+        0.1810918774966711,
+        0.17576564580559254,
+        0.20772303595206393,
+        0.18242343541944075
+      ],
+      "mean_over_seeds_s": 0.3589711601325073,
+      "median_over_seeds_s": 0.3258683229813195,
+      "failed_seeds": 0,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.16020552395309692,
+            "low": -0.0008555363142848008,
+            "high": 0.3944082384200611,
+            "verdict": "inconclusive"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 3.3022636484687116,
+            "low": 0.0,
+            "high": 10.066913448735015,
+            "verdict": "inconclusive"
+          }
+        },
+        "verdict": "no_difference"
+      },
+      "best_seed_by_dev": {
+        "seed": 3,
+        "mean_latency_s": 0.31007394109051506,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.002168249823546222,
+            "low": 0.0,
+            "high": 0.005610615831527592,
+            "verdict": "equivalent"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "no_difference"
+      }
+    },
+    "dqn": {
+      "mean_latency_s_by_seed": [
+        0.7415627297899886,
+        0.7441626778936585,
+        0.6951971833722321,
+        0.8302669111667716,
+        0.743239896229499
+      ],
+      "slo_violation_rate_by_seed": [
+        0.5352862849533955,
+        0.563249001331558,
+        0.4780292942743009,
+        0.6537949400798935,
+        0.563249001331558
+      ],
+      "mean_over_seeds_s": 0.7508858796904301,
+      "median_over_seeds_s": 0.743239896229499,
+      "failed_seeds": 5,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 1.426885617088675,
+            "low": 1.198112113164239,
+            "high": 1.9064008552891665,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 38.29560585885486,
+            "low": 24.074431785987475,
+            "high": 53.54688149134488,
+            "verdict": "rl_worse"
+          }
+        },
+        "verdict": "rl_worse"
+      },
+      "best_seed_by_dev": {
+        "seed": 5,
+        "mean_latency_s": 0.743239896229499,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 1.4021735699031816,
+            "low": 1.201311565876195,
+            "high": 1.7559860132146548,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 38.748335552596544,
+            "low": 22.974497204772366,
+            "high": 55.06666666666666,
+            "verdict": "rl_worse"
+          }
+        },
+        "verdict": "rl_worse"
+      }
+    }
+  },
+  "registered_test_load": 0.1727495782855391
+}

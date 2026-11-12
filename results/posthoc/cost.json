@@ -6,22 +6,27 @@
     "pipeline-code-load0.3": {
       "baseline_search_seconds": 52.14284110069275,
       "baseline_configurations": 2514,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 1078.2886235713959
     },
     "pipeline-code-load0.5": {
       "baseline_search_seconds": 45.3349609375,
       "baseline_configurations": 2514,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 1123.5038068294525
     },
     "pipeline-code-load0.7": {
       "baseline_search_seconds": 36.24762320518494,
       "baseline_configurations": 2514,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 1134.8918890953064
     },
     "pipeline-code-load0.9": {
       "baseline_search_seconds": 32.52279329299927,
       "baseline_configurations": 2514,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 1094.511173248291
+    },
+    "pipeline-conv-load0.3": {
+      "baseline_search_seconds": 225.39177107810974,
+      "baseline_configurations": 2514,
+      "rl_training_seconds_10_runs": 1476.8635489940643
     },
     "pipeline-conv-load0.5": {
       "baseline_search_seconds": 187.78189301490784,
@@ -41,27 +46,27 @@
     "single-code-load0.3": {
       "baseline_search_seconds": 0.828376054763794,
       "baseline_configurations": 102,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 962.7893326282501
     },
     "single-code-load0.5": {
       "baseline_search_seconds": 0.6686699390411377,
       "baseline_configurations": 102,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 985.5770616531372
     },
     "single-code-load0.7": {
       "baseline_search_seconds": 0.5697438716888428,
       "baseline_configurations": 102,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 1027.2471232414246
     },
     "single-code-load0.9": {
       "baseline_search_seconds": 0.5556232929229736,
       "baseline_configurations": 102,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 982.3996605873108
     },
     "single-conv-load0.3": {
       "baseline_search_seconds": 3.9160919189453125,
       "baseline_configurations": 102,
-      "rl_training_seconds_10_runs": 0.0
+      "rl_training_seconds_10_runs": 935.8200671672821
     },
     "single-conv-load0.5": {
       "baseline_search_seconds": 2.9492506980895996,

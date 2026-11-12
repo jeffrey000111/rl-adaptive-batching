@@ -1,0 +1,141 @@
+{
+  "condition": "single-code-load0.3",
+  "evaluated_on": "test",
+  "exploratory": true,
+  "requests": 751,
+  "realised_load": 0.10364974697132343,
+  "failure_ratio": 2.0,
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline": {
+    "requests": 751,
+    "completed": 751,
+    "mean_latency_s": 0.1755615644896169,
+    "p50_latency_s": 0.09655367933412862,
+    "p95_latency_s": 0.6069201269737512,
+    "p99_latency_s": 0.7351273229830184,
+    "slo_violation_rate": 0.05725699067909454,
+    "throughput_rps": 14.035741978044088,
+    "busy_time_s": [
+      7.873713740000002
+    ],
+    "utilization": [
+      0.1471550126013589
+    ],
+    "mean_batch_size": [
+      3.2094017094017095
+    ]
+  },
+  "algorithms": {
+    "ppo": {
+      "mean_latency_s_by_seed": [
+        0.1748290806547301,
+        0.17743420278520314,
+        0.1782103531979973,
+        0.1783171096294276,
+        0.18987287124501875
+      ],
+      "slo_violation_rate_by_seed": [
+        0.05725699067909454,
+        0.09187749667110519,
+        0.07190412782956059,
+        0.06125166444740346,
+        0.09187749667110519
+      ],
+      "mean_over_seeds_s": 0.17973272350247538,
+      "median_over_seeds_s": 0.1782103531979973,
+      "failed_seeds": 0,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.023758953304982768,
+            "low": -0.00515738482858437,
+            "high": 0.060373346992447445,
+            "verdict": "inconclusive"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 1.7576564580559255,
+            "low": 0.0,
+            "high": 5.205843293492694,
+            "verdict": "inconclusive"
+          }
+        },
+        "verdict": "no_difference"
+      },
+      "best_seed_by_dev": {
+        "seed": 1,
+        "mean_latency_s": 0.1748290806547301,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": -0.004172233467024441,
+            "low": -0.010977140920145076,
+            "high": 0.0,
+            "verdict": "equivalent"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 0.0,
+            "low": 0.0,
+            "high": 0.0,
+            "verdict": "equivalent"
+          }
+        },
+        "verdict": "no_difference"
+      }
+    },
+    "dqn": {
+      "mean_latency_s_by_seed": [
+        0.3306345044521767,
+        0.3020828717743258,
+        0.325639590678942,
+        0.34469699226134154,
+        0.34072016062646043
+      ],
+      "slo_violation_rate_by_seed": [
+        0.2103861517976032,
+        0.19307589880159787,
+        0.20505992010652463,
+        0.21837549933422104,
+        0.2623169107856192
+      ],
+      "mean_over_seeds_s": 0.3287548239586493,
+      "median_over_seeds_s": 0.3306345044521767,
+      "failed_seeds": 0,
+      "five_seed_average": {
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.8725899653172245,
+            "low": 0.43360163688203746,
+            "high": 1.1213106661141041,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 16.05858854860186,
+            "low": 3.9885652425758034,
+            "high": 30.97463284379172,
+            "verdict": "rl_worse"
+          }
+        },
+        "verdict": "rl_worse"
+      },
+      "best_seed_by_dev": {
+        "seed": 4,
+        "mean_latency_s": 0.34469699226134154,
+        "intervals": {
+          "mean_latency_relative_difference": {
+            "estimate": 0.9633966766212532,
+            "low": 0.4242826496594616,
+            "high": 1.2662253037741023,
+            "verdict": "rl_worse"
+          },
+          "slo_violation_difference_points": {
+            "estimate": 16.11185086551265,
+            "low": 3.8613896010992446,
+            "high": 31.28342245989305,
+            "verdict": "rl_worse"
+          }
+        },
+        "verdict": "rl_worse"
+      }
+    }
+  },
+  "registered_test_load": 0.10364974697132343
+}
