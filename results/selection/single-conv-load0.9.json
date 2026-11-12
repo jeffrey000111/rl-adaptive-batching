@@ -1,0 +1,60 @@
+{
+  "condition": "single-conv-load0.9",
+  "best_rl_algorithm": "ppo",
+  "strongest_baseline_mean_latency_s": {
+    "train": 1.1014991468839184,
+    "dev": 0.3255516175555453
+  },
+  "algorithms": {
+    "ppo": {
+      "dev_mean_latency_s_by_seed": [
+        0.35989048615632374,
+        0.3255516175555453,
+        0.5233230107512674,
+        0.3634912092273221,
+        0.361556417946457
+      ],
+      "selected_checkpoint_steps_by_seed": [
+        120000,
+        120000,
+        180000,
+        300000,
+        210000
+      ],
+      "mean_latency_s": {
+        "train": 1.4055780044594623,
+        "dev": 0.3867625483273831
+      },
+      "ratio_to_strongest_baseline": {
+        "train": 1.2760590949487038,
+        "dev": 1.1880221982352586
+      },
+      "possible_overfitting": false
+    },
+    "dqn": {
+      "dev_mean_latency_s_by_seed": [
+        3.044642973639422,
+        5.067477093259971,
+        2.189720551793257,
+        2.11405478051748,
+        1.9634099804746994
+      ],
+      "selected_checkpoint_steps_by_seed": [
+        270000,
+        300000,
+        240000,
+        300000,
+        300000
+      ],
+      "mean_latency_s": {
+        "train": 4.9838054966832965,
+        "dev": 2.875861075936966
+      },
+      "ratio_to_strongest_baseline": {
+        "train": 4.524565916171804,
+        "dev": 8.833809819563527
+      },
+      "possible_overfitting": true
+    }
+  }
+}
